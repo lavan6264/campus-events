@@ -94,8 +94,8 @@ check(/Filters from AI|keyword search/.test(aiNote), `AI search reports its sour
 check(page.url().includes("category=Workshop"), "AI filters are written to the URL");
 await signOut();
 
-// 2. Faculty: create with AI draft, participants, CSV, edit, delete
-await signIn("Faculty");
+// 2. Organiser: create with AI draft, participants, CSV, edit, delete
+await signIn("Organiser");
 await page.getByRole("link", { name: "My events" }).first().click();
 await page.getByRole("heading", { name: "My events" }).waitFor();
 await shot("my-events-glass");
@@ -150,7 +150,7 @@ for (const email of ["aarav.sharma@campus-demo.test", "ananya.reddy@campus-demo.
   await signOut();
 }
 
-await signIn("Faculty");
+await signIn("Organiser");
 await page.goto(`${APP}/events/${eventId}/participants`);
 await page.getByRole("heading", { name: /Participants/ }).waitFor();
 await page.getByRole("cell", { name: "Vihaan Patel" }).waitFor();
@@ -199,9 +199,9 @@ check(await page.getByRole("table", { name: "Registrations per day" }).isVisible
 await page.getByLabel("Search users").fill("Diya Nair");
 await page.getByLabel("Role for Diya Nair").waitFor();
 await page.getByLabel("Role for Diya Nair").selectOption("faculty");
-await page.getByText("Diya Nair is now a faculty user").waitFor();
+await page.getByText("Diya Nair is now an organiser").waitFor();
 await page.getByLabel("Role for Diya Nair").selectOption("student");
-await page.getByText("Diya Nair is now a student user").waitFor();
+await page.getByText("Diya Nair is now a student").waitFor();
 ok("admin changes a role and changes it back");
 await page.getByLabel("Search users").fill("Admin");
 await page.getByLabel("Role for Admin").waitFor();

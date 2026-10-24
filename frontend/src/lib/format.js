@@ -25,3 +25,11 @@ export function seatsText(event) {
   if (event.seats_left <= 0) return event.waitlisted_count ? `Full, ${event.waitlisted_count} waiting` : "Full";
   return `${event.seats_left} ${event.seats_left === 1 ? "seat" : "seats"} left`;
 }
+
+// What people see. The stored role value for organisers is still "faculty".
+const ROLE_LABELS = { student: "Student", faculty: "Organiser", admin: "Admin" };
+export const roleLabel = (role) => ROLE_LABELS[role] || role;
+export const roleWithArticle = (role) => {
+  const label = roleLabel(role).toLowerCase();
+  return `${/^[aeiou]/.test(label) ? "an" : "a"} ${label}`;
+};

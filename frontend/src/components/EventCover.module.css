@@ -1,0 +1,54 @@
+.cover {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--accent-subtle);
+}
+
+.art,
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.image {
+  object-fit: cover;
+}
+
+/* Drawing styles, all from theme tokens so the covers follow dark and light mode */
+.fill {
+  fill: var(--accent);
+  opacity: 0.9;
+}
+
+.fillSoft {
+  fill: var(--accent);
+  opacity: 0.28;
+}
+
+.stroke {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  opacity: 0.7;
+}
+
+.line {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  opacity: 0.8;
+}
+
+.lineSoft {
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.35;
+}
+
+.dot {
+  fill: var(--highlight);
+  opacity: 0.95;
+}

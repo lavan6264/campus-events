@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import Button from "../components/Button.jsx";
+import EventCard from "../components/EventCard.jsx";
 import EventRow, { Availability } from "../components/EventRow.jsx";
 import Skeleton from "../components/Skeleton.jsx";
 import { useAuth } from "../lib/auth.jsx";
@@ -20,6 +21,24 @@ function ListSkeleton({ rows = 4 }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+function CardSkeletons({ count = 4 }) {
+  return (
+    <div className={styles.cards} aria-hidden="true">
+      {Array.from({ length: count }, (_, i) => (
+        <div key={i} className={`${styles.skeletonCard} glass-2`}>
+          <div className={styles.skeletonCover} />
+          <div className={styles.skeletonText}>
+            <Skeleton width="30%" height={12} />
+            <Skeleton width="80%" height={18} />
+            <Skeleton width="55%" />
+            <Skeleton width="100%" height={40} />
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -77,25 +96,31 @@ export default function Dashboard() {
       </section>
 
       <div className={styles.dashGrid}>
-        <section className={`${styles.panel} glass-2`} aria-labelledby="upcoming-heading">
-          <div className={styles.panelHeader}>
+        <section className={styles.cardsSection} aria-labelledby="upcoming-heading">
+          <div className={styles.sectionHeader}>
             <h2 id="upcoming-heading">Upcoming events</h2>
             <Link to="/events">See all events</Link>
           </div>
-          {upcoming.isLoading ? <ListSkeleton rows={5} /> : null}
-          {upcoming.error && !upcoming.data ? <Failure error={upcoming.error} onRetry={upcoming.refetch} /> : null}
+          {upcoming.isLoading ? <CardSkeletons /> : null}
+          {upcoming.error && !upcoming.data ? (
+            <div className={`${styles.panel} glass-2`}>
+              <Failure error={upcoming.error} onRetry={upcoming.refetch} />
+            </div>
+          ) : null}
           {upcoming.data && items.length === 0 ? (
-            <div className={styles.panelBody}>
-              <p>No upcoming events yet.</p>
-              <p className="muted">Check back soon, or ask a faculty member to create one.</p>
+            <div className={`${styles.panel} glass-2`}>
+              <div className={styles.panelBody}>
+                <p>No upcoming events yet.</p>
+                <p className="muted">Check back soon, or ask an organiser to create one.</p>
+              </div>
             </div>
           ) : null}
           {items.length ? (
-            <ul className={styles.list}>
+            <div className={styles.cards}>
               {items.slice(0, 6).map((event) => (
-                <EventRow key={event.id} event={event} />
+                <EventCard key={event.id} event={event} />
               ))}
-            </ul>
+            </div>
           ) : null}
         </section>
 
@@ -156,18 +181,11 @@ export default function Dashboard() {
             </div>
           ) : null}
           {organised.data?.items.length ? (
-            <ul className={styles.list}>
-              {organised.data.items.map((event) => (
-                <EventRow key={event.id} event={event}>
-                  <p className="small">
-                    <span className="mono">{event.registered_count}</span> of <span className="mono">{event.capacity}</span> seats taken
-                    {event.waitlisted_count ? <>, <span className="mono">{event.waitlisted_count}</span> waiting</> : null}
-                    {". "}
-                    <Link to={`/events/${event.id}/participants`}>Manage participants</Link>
-                  </p>
-                </EventRow>
+            <div className={styles.cardsInPanel}>
+              {organised.data.items.slice(0, 3).map((event) => (
+                <EventCard key={event.id} event={event} manage />
               ))}
-            </ul>
+            </div>
           ) : null}
         </section>
       ) : null}

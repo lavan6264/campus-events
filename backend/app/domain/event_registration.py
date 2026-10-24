@@ -15,7 +15,7 @@ from app.db import get_db
 from app.deps import get_current_user
 from app.resources.events.models import CATEGORIES, Event
 from app.resources.registrations.logic import (
-    cancel_user_registration, register_user, waitlist_position,
+    cancel_user_registration, register_user, remove_registration, waitlist_position,
 )
 from app.resources.registrations.models import Registration
 from app.resources.users.models import User
@@ -189,3 +189,14 @@ def participants_csv(id: int, request: Request, user: User = Depends(get_current
         media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": f'attachment; filename="event-{event.id}-participants.csv"'},
     )
+
+
+@router.delete("/{id}/participants/{registration_id}", response_model=RegistrationResult,
+               summary="Remove a participant from an event (organiser or admin)", responses=ERRORS)
+def remove_participant(id: int, registration_id: int, user: User = Depends(get_current_user),
+                       db: Session = Depends(get_db)):
+    """Frees the seat. If someone is on the waitlist, the oldest person gets it."""
+    _organizer_event(db, user, id)
+    _, removed = remove_registration(db, id, registration_id)
+    db.commit()
+    return RegistrationResult(status="cancelled", message=f"{removed.name} was removed")

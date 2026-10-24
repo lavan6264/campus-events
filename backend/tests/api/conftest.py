@@ -9,7 +9,10 @@ from app.security import create_access_token, hash_password
 
 
 @pytest.fixture()
-def app(override_db):
+def app(override_db, tmp_path, monkeypatch):
+    from app.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "upload_dir", str(tmp_path / "uploads"))
     application = create_app()
     application.dependency_overrides[get_db] = override_db
     login_limiter.reset()

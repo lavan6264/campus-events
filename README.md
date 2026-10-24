@@ -1,6 +1,6 @@
 # Campus Events
 
-A smart campus event management system. Students and faculty create, discover and register for university events. Admins see reports. FastAPI, PostgreSQL and React.
+A smart campus event management system. Students and organisers create, discover and register for university events. Admins see reports. FastAPI, PostgreSQL and React.
 
 The idea at the centre: a small, reusable **CRUD framework** for REST (backend and frontend). Users, events and registrations are built on top of it. A new resource takes about 20 lines, not a new set of hand written routes.
 
@@ -38,12 +38,12 @@ cd ../frontend && npm install && npm run dev
 
 Open <http://localhost:5173>. The API and its generated documentation are at <http://localhost:8000/docs>.
 
-The seed prints the demo logins. Each sign in page also has Admin, Faculty and Student buttons that fill the form.
+The seed prints the demo logins. Each sign in page also has Admin, Organiser and Student buttons that fill the form.
 
 | Role | Email | Password |
 |---|---|---|
 | Admin | `admin@campus-demo.test` | `admin123` |
-| Faculty | `faculty1@campus-demo.test` to `faculty4@campus-demo.test` | `faculty123` |
+| Organiser | `organiser1@campus-demo.test` to `organiser4@campus-demo.test` | `organiser123` |
 | Student | `aarav.sharma@campus-demo.test` and 39 others | `student123` |
 
 ## Configuration
@@ -61,7 +61,7 @@ One `.env` file in the repo root configures both sides. Vite reads only the `VIT
 | `GEMINI_MODEL` | Default `gemini-3.5-flash-lite`. See [AI features](#ai-features-and-fallbacks). |
 | `VITE_API_URL` | Where the frontend finds the API. |
 | `VITE_INSTITUTION_NAME` | The name shown in the app. Default "Campus Events". |
-| `VITE_INSTITUTION_LOGO` | Optional logo URL for the logo slot. No real university branding ships with the app. |
+| `VITE_INSTITUTION_LOGO` | The logo image. Default `/logo.png` (`frontend/public/logo.png`, a 256px copy of the project `logo.png`). No real university branding ships with the app. |
 | `VITE_DEMO_LOGINS` | Set to `false` to hide the demo account buttons. |
 
 ## Architecture
@@ -162,10 +162,10 @@ erDiagram
 | Role | Can do |
 |---|---|
 | student | Browse, search, register, cancel, see their own registrations |
-| faculty | Everything a student can, plus create events, and edit, delete or view participants of their own events |
+| organiser | Everything a student can, plus create events, and edit, delete or view participants of their own events. The role is stored as `faculty` in the database and API, and shown as Organiser in the interface. |
 | admin | Everything, plus manage any event, change user roles, and view reports |
 
-- Public sign up creates only `student` or `faculty`. Only an admin changes a role, through `PATCH /api/admin/users/{id}/role`. Nobody can change their own role through the profile routes, and an admin cannot remove their own admin role.
+- Public sign up creates only `student` or `faculty` (shown as Organiser). Only an admin changes a role, through `PATCH /api/admin/users/{id}/role`. Nobody can change their own role through the profile routes, and an admin cannot remove their own admin role.
 - A person registers for an event once (a unique constraint plus a plain message).
 - When an event is full, new registrations are **waitlisted**. When someone cancels, the oldest waitlisted person is promoted. When an organizer raises capacity, waitlisted people move into the new seats.
 - Capacity cannot be lowered below the number of confirmed registrations.
@@ -180,7 +180,8 @@ Everything is under `/api` and returns JSON. The full, always current list is at
 |---|---|
 | Generated | `/users`, `/events`, `/registrations`: list, read, create, update (`PUT` and `PATCH`), delete |
 | Auth | `POST /auth/register`, `POST /auth/login` (limited to 10 failed attempts a minute), `GET /auth/me` |
-| Events | `GET /events/categories`, `POST` and `DELETE /events/{id}/register`, `GET /events/{id}/participants` and `/participants.csv` |
+| Events | `GET /events/categories`, `POST` and `DELETE /events/{id}/register`, `GET /events/{id}/participants` and `/participants.csv`, `DELETE /events/{id}/participants/{registration_id}` (organiser removes someone) |
+| Uploads | `POST /uploads/event-image` (organisers and admins), files served from `/api/uploads/...` |
 | Me | `GET /me/registrations`, `GET /me/events` |
 | Admin | `GET /admin/stats`, `PATCH /admin/users/{id}/role` |
 | AI | `POST /ai/search`, `POST /ai/draft-event`, `GET /ai/recommendations`, `GET /admin/ai/summary` |
@@ -324,7 +325,7 @@ Earlier versions: the first design used translucent glass panels over a blurred 
 |---|---|---|
 | Sign in | ![](docs/screenshots/login.png) | ![](docs/screenshots/login-light.png) |
 | Dashboard (student) | ![](docs/screenshots/dashboard.png) | ![](docs/screenshots/dashboard-light.png) |
-| Dashboard (faculty) | ![](docs/screenshots/dashboard-faculty.png) | ![](docs/screenshots/dashboard-faculty-light.png) |
+| Dashboard (organiser) | ![](docs/screenshots/dashboard-organiser.png) | ![](docs/screenshots/dashboard-organiser-light.png) |
 | Explore events | ![](docs/screenshots/explore.png) | ![](docs/screenshots/explore-light.png) |
 | Event detail | ![](docs/screenshots/event-detail.png) | ![](docs/screenshots/event-detail-light.png) |
 | Reports | ![](docs/screenshots/reports.png) | ![](docs/screenshots/reports-light.png) |
@@ -355,7 +356,7 @@ Start both servers first (see [Quick start](#quick-start)). Use the demo buttons
 
 **3. Register (45 s).** Open **Data science with Python** and press **Register**. The panel changes to **Cancel registration**. Open **Embedded systems workshop**: it is full, so the button reads **Join waitlist** and you get a queue position. Open an event that overlaps one you hold and show the clash message that names it.
 
-**4. Create an event with AI (60 s).** Sign out, click **Faculty**, open **My events**, press **Create event**. In **Draft with AI** write `intro to drone building, saturday morning, innovation lab, beginners welcome` and press the button. Edit the draft, set a time, make the end earlier than the start to show the inline error, fix it, and save. Nothing is saved until you press the save button.
+**4. Create an event with AI (60 s).** Sign out, click **Organiser**, open **My events**, press **Create event**. In **Draft with AI** write `intro to drone building, saturday morning, innovation lab, beginners welcome` and press the button. Edit the draft, set a time, make the end earlier than the start to show the inline error, fix it, and save. Nothing is saved until you press the save button.
 
 **5. Manage participants (45 s).** Open the event, press **Manage participants**. Search within participants, then press **Export CSV**. Open **Embedded systems workshop** (it has a waitlist), raise its capacity in **Edit event**, and return to the list: the oldest waitlisted people are now confirmed.
 
@@ -371,6 +372,9 @@ Start both servers first (see [Quick start](#quick-start)). Use the demo buttons
 - Only `registered` registrations block a time clash. A waitlist spot never does. The clash check applies when a seat would be confirmed, so a person can still join the waitlist of a full event that overlaps something they hold.
 - `PUT` and `PATCH` behave the same on generated routes: both change only the fields sent.
 - Re-registering after a cancellation goes to the back of the waitlist.
+- **Organiser tools.** An organiser can create events, upload a cover image, edit or cancel their own events, duplicate an old event as a template for a new one, see participants, search them, export a CSV, and remove a participant (the oldest waitlisted person is promoted into the freed seat). Admins can do all of this for any event.
+- **Cover images.** The upload is checked by the file's real content (PNG, JPEG, GIF or WebP, up to 2 MB), not by its name or the type the browser reports. SVG is refused because it can carry scripts. Files get a random name, so a clever file name cannot reach other folders, and they are served with `nosniff`. They are stored in `backend/uploads/` (git ignored). An event can also use a plain link instead, and without either it gets a drawn cover. A real deployment would use object storage, and would resize images.
+- The role organisers have is stored as `faculty` in the database and API and shown as **Organiser** everywhere in the interface. Renaming the stored value would need a data migration for no visible gain.
 - Only failed sign in attempts count toward the login limit, so a class signing in from one address is never locked out. The limiter is in memory, which is enough for one process.
 - Charts are plain HTML and CSS, not a library, so text stays real and readable on a phone. Each can be read as a table.
 - The interface uses solid graphite surfaces with an orange accent, in a dark and a light theme. The earlier translucent glass version is kept as the git tag `glass-design`. The CSS classes `glass-1`, `glass-2` and `glass-3` keep their names but now paint flat surfaces.

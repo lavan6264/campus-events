@@ -269,3 +269,70 @@
     min-height: var(--touch-h);
   }
 }
+
+/* Event cards on the dashboard */
+.cardsSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-16);
+  min-width: 0;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-16);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--sp-16);
+}
+
+.skeletonCard {
+  overflow: hidden;
+}
+
+.skeletonCover {
+  aspect-ratio: 16 / 9;
+  background: var(--row-divider);
+}
+
+.skeletonCard .skeletonText {
+  padding: var(--sp-16);
+}
+
+@media (max-width: 720px) {
+  .sectionHeader a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-h);
+  }
+}
+
+.viewTools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-12);
+}
+
+.viewToggle {
+  width: 200px;
+}
+
+@media (max-width: 720px) {
+  .viewTools,
+  .viewToggle {
+    width: 100%;
+  }
+}
+
+.cardsInPanel {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--sp-16);
+  padding: var(--sp-16);
+}

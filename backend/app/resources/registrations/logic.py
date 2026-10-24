@@ -149,3 +149,24 @@ def cancel_user_registration(db: Session, user: User, event_id: int) -> Registra
     if was_confirmed:
         promote_waitlisted(db, event)
     return registration
+
+
+def remove_registration(db: Session, event_id: int, registration_id: int) -> tuple[Registration, User]:
+    """An organiser removes someone from their event. A freed confirmed seat goes to the waitlist."""
+    event = lock_event(db, event_id)
+    if event is None:
+        raise NotFound("Event not found")
+    registration = db.get(Registration, registration_id)
+    if registration is None or registration.event_id != event_id:
+        raise NotFound("Participant not found")
+    if registration.status == "cancelled":
+        raise Conflict("This person is already removed")
+    if event.end_time <= datetime.now(timezone.utc):
+        raise Conflict("Cannot remove anyone, event already ended")
+    was_confirmed = registration.status == "registered"
+    registration.status = "cancelled"
+    registration.updated_at = datetime.now(timezone.utc)
+    db.flush()
+    if was_confirmed:
+        promote_waitlisted(db, event)
+    return registration, db.get(User, registration.user_id)

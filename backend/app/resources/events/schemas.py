@@ -20,6 +20,20 @@ def _check_category(value: str | None) -> str | None:
     return value
 
 
+def _check_image(value: str | None) -> str | None:
+    """A link to an image: http(s) or a path on this site. Empty means no image."""
+    if value is None:
+        return None
+    value = value.strip()
+    if not value:
+        return None
+    if not (value.startswith("https://") or value.startswith("http://") or value.startswith("/")) or value.startswith("//"):
+        raise ValueError("Use a link that starts with https://")
+    if any(ch.isspace() for ch in value):
+        raise ValueError("The link cannot contain spaces")
+    return value
+
+
 def _check_end(value: datetime | None, info: ValidationInfo) -> datetime | None:
     start = info.data.get("start_time")
     if value is not None and start is not None and value <= start:
@@ -40,6 +54,7 @@ class EventRead(BaseModel):
     capacity: int
     organizer_id: int
     organizer_name: str | None = None
+    image_url: str | None = None
     status: Literal["published", "cancelled"]
     created_at: datetime
     # Computed per request
@@ -60,9 +75,11 @@ class EventCreate(BaseModel):
     start_time: AwareDatetime
     end_time: AwareDatetime
     capacity: int = Field(gt=0, le=100000)
+    image_url: str | None = Field(default=None, max_length=500)
 
     _category = field_validator("category")(_check_category)
     _end = field_validator("end_time")(_check_end)
+    _image = field_validator("image_url")(_check_image)
 
 
 class EventUpdate(BaseModel):
@@ -73,7 +90,9 @@ class EventUpdate(BaseModel):
     start_time: AwareDatetime | None = None
     end_time: AwareDatetime | None = None
     capacity: int | None = Field(default=None, gt=0, le=100000)
+    image_url: str | None = Field(default=None, max_length=500)
     status: Literal["published", "cancelled"] | None = None
 
     _category = field_validator("category")(_check_category)
     _end = field_validator("end_time")(_check_end)
+    _image = field_validator("image_url")(_check_image)

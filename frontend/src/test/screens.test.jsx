@@ -312,7 +312,7 @@ describe("role based navigation", () => {
     expect(await nav("student")).toEqual(["Dashboard", "Explore events"]);
   });
 
-  it("adds My events for faculty", async () => {
+  it("adds My events for organisers", async () => {
     expect(await nav("faculty")).toEqual(["Dashboard", "Explore events", "My events"]);
   });
 
@@ -344,5 +344,123 @@ describe("theme", () => {
     renderApp("/login");
     await ui.click(await screen.findByRole("button", { name: "Switch to light theme" }));
     expect(document.documentElement.dataset.theme).toBe("light");
+  });
+});
+
+describe("event cards", () => {
+  const cardsRoutes = (items, extra = {}) => ({
+    "GET /events/categories": () => ({ body: ["Workshop"] }),
+    "GET /events/": () => ({ body: page(items) }),
+    ...extra,
+  });
+  const card = (title) => screen.getByRole("heading", { name: title }).closest("article");
+
+  it("shows cover, details, seat count and an Enroll button, and enrolls from the card", async () => {
+    signIn();
+    const event = makeEvent({ id: 31, title: "Data science with Python", venue: "Innovation Lab", organizer_name: "Dr. Meenakshi Iyer" });
+    let current = event;
+    const routes = cardsRoutes([event], {
+      "POST /events/31/register": () => {
+        current = { ...event, my_status: "registered", registered_count: 6, seats_left: 14 };
+        return { status: 201, body: { status: "registered", waitlist_position: null, message: "You are registered" } };
+      },
+    });
+    routes["GET /events/"] = () => ({ body: page([current]) });
+    const { calls } = installFakeApi(routes);
+    const ui = userEvent.setup();
+    renderApp("/events");
+
+    const article = await waitFor(() => card("Data science with Python"));
+    expect(article).toHaveTextContent("15 seats left of 20");
+    expect(within(article).getByText("Innovation Lab")).toBeInTheDocument();
+    expect(within(article).getByText("By Dr. Meenakshi Iyer")).toBeInTheDocument();
+    expect(article.querySelector("svg")).not.toBeNull(); // the drawn cover
+
+    await ui.click(within(article).getByRole("button", { name: "Enroll in Data science with Python" }));
+    expect(await screen.findByRole("button", { name: "Cancel enrollment in Data science with Python" })).toBeInTheDocument();
+    expect(calls.some((c) => c.method === "POST" && c.path === "/events/31/register")).toBe(true);
+    expect(within(card("Data science with Python")).getByText("Registered")).toBeInTheDocument();
+  });
+
+  it("offers the right action for each state", async () => {
+    signIn();
+    const items = [
+      makeEvent({ id: 41, title: "Full workshop", seats_left: 0, registered_count: 20, waitlisted_count: 3 }),
+      makeEvent({ id: 42, title: "Waiting for a seat", seats_left: 0, my_status: "waitlisted", my_waitlist_position: 2 }),
+      makeEvent({ id: 43, title: "Clashing talk", clash_with_title: "Hack night", clash_with_id: 1 }),
+      makeEvent({ id: 44, title: "Old quiz", start_time: new Date(Date.now() - 3 * DAY).toISOString(), end_time: new Date(Date.now() - 3 * DAY + 3600000).toISOString() }),
+      makeEvent({ id: 45, title: "Called off", status: "cancelled" }),
+    ];
+    installFakeApi(cardsRoutes(items));
+    renderApp("/events");
+    await waitFor(() => card("Full workshop"));
+
+    expect(within(card("Full workshop")).getByText("Full, 3 waiting")).toBeInTheDocument();
+    expect(within(card("Full workshop")).getByRole("button", { name: /Join the waitlist/ })).toBeEnabled();
+    expect(within(card("Waiting for a seat")).getByText("Waitlisted, position 2")).toBeInTheDocument();
+    expect(within(card("Waiting for a seat")).getByRole("button", { name: /Leave the waitlist/ })).toBeEnabled();
+    expect(within(card("Clashing talk")).getByRole("button", { name: /unavailable: clashes with Hack night/ })).toBeDisabled();
+    expect(within(card("Clashing talk")).getByText("Overlaps with Hack night")).toBeInTheDocument();
+    expect(within(card("Old quiz")).getByRole("button", { name: "Event ended" })).toBeDisabled();
+    expect(within(card("Called off")).getByRole("button", { name: "Cancelled" })).toBeDisabled();
+  });
+
+  it("switches between cards and the table, keeping the view in the URL", async () => {
+    signIn();
+    installFakeApi(cardsRoutes([makeEvent({ id: 51, title: "Quiz night" })]));
+    const ui = userEvent.setup();
+    const { router } = renderApp("/events");
+    await waitFor(() => card("Quiz night"));
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+
+    await ui.click(screen.getByRole("tab", { name: "Table" }));
+    expect(await screen.findByRole("table")).toBeInTheDocument();
+    expect(router.state.location.search).toContain("view=table");
+
+    await ui.click(screen.getByRole("tab", { name: "Cards" }));
+    await waitFor(() => card("Quiz night"));
+    expect(router.state.location.search).not.toContain("view");
+  });
+
+  it("sorts cards with the Sort by control, and shows what to do when nothing matches", async () => {
+    signIn();
+    const { calls } = installFakeApi(cardsRoutes([makeEvent({ id: 61, title: "Quiz night" })]));
+    const ui = userEvent.setup();
+    renderApp("/events");
+    await waitFor(() => card("Quiz night"));
+    await ui.selectOptions(screen.getByLabelText("Sort by"), "-start_time");
+    await waitFor(() => expect([...calls].reverse().find((c) => c.path === "/events/").params.sort).toBe("-start_time"));
+  });
+
+  it("shows an empty state with a next step", async () => {
+    signIn();
+    installFakeApi(cardsRoutes([]));
+    renderApp("/events");
+    expect(await screen.findByRole("heading", { name: "No events match" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Clear filters" })).toBeInTheDocument();
+  });
+
+  it("gives organizers Participants and Edit buttons on their own events", async () => {
+    signIn({ id: 50, role: "faculty" });
+    installFakeApi({
+      "GET /me/events": () => ({ body: page([makeEvent({ id: 71, title: "My workshop", organizer_id: 50 })]) }),
+    });
+    renderApp("/my-events");
+    const article = await waitFor(() => card("My workshop"));
+    expect(within(article).getByRole("link", { name: "Participants of My workshop" })).toHaveAttribute("href", "/events/71/participants");
+    expect(within(article).getByRole("link", { name: "Edit My workshop" })).toHaveAttribute("href", "/events/71/edit");
+    expect(within(article).queryByRole("button", { name: /Enroll/ })).not.toBeInTheDocument();
+  });
+
+  it("falls back to the drawn cover when an image link does not load, and uses the image when it does", async () => {
+    signIn();
+    installFakeApi(cardsRoutes([makeEvent({ id: 81, title: "With picture", image_url: "https://example.test/cover.jpg" })]));
+    renderApp("/events");
+    const article = await waitFor(() => card("With picture"));
+    const img = article.querySelector("img");
+    expect(img).toHaveAttribute("src", "https://example.test/cover.jpg");
+    img.dispatchEvent(new Event("error"));
+    await waitFor(() => expect(article.querySelector("img")).toBeNull());
+    expect(article.querySelector("svg")).not.toBeNull();
   });
 });

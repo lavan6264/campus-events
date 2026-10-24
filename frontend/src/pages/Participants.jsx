@@ -1,10 +1,13 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { usePageTitle } from "../app/Shell.jsx";
 import Button from "../components/Button.jsx";
+import Dialog from "../components/Dialog.jsx";
 import { DownloadIcon } from "../components/icons.jsx";
 import StatusMarker from "../components/StatusMarker.jsx";
 import { useToast } from "../components/Toast.jsx";
+import { api } from "../lib/crud/api.js";
 import { createResource } from "../lib/crud/createResource.js";
 import DataTable from "../lib/crud/DataTable.jsx";
 import FilterBar, { toApiParams } from "../lib/crud/FilterBar.jsx";
@@ -31,7 +34,7 @@ const FILTERS = [
   },
 ];
 
-const columns = [
+const baseColumns = [
   { key: "name", header: "Name", sortable: true, render: (p) => <strong>{p.name}</strong> },
   { key: "email", header: "Email" },
   { key: "department", header: "Department", render: (p) => p.department || "Not set" },
@@ -61,11 +64,37 @@ export default function Participants() {
   const toast = useToast();
   const [state, setState, clear] = useQueryState(DEFAULTS);
   const [exporting, setExporting] = useState(false);
+  const [removing, setRemoving] = useState(null);
+  const client = useQueryClient();
+  const removeMutation = useMutation({
+    mutationFn: (person) => api(`/events/${id}/participants/${person.registration_id}`, { method: "DELETE" }),
+    onSuccess: (result) => {
+      client.invalidateQueries();
+      toast.success(result.message);
+      setRemoving(null);
+    },
+    onError: (error) => {
+      toast.error(error.message);
+      setRemoving(null);
+    },
+  });
   const eventQuery = events.useOne(id);
   const participants = useMemo(
     () => createResource(`participants-${id}`, { path: `/events/${id}/participants`, slash: false }),
     [id],
   );
+  const columns = [
+    ...baseColumns,
+    {
+      key: "actions", header: "Manage",
+      render: (p) =>
+        p.status === "cancelled" ? null : (
+          <Button size="sm" variant="danger" onClick={() => setRemoving(p)} aria-label={`Remove ${p.name}`}>
+            Remove
+          </Button>
+        ),
+    },
+  ];
   const params = toApiParams(state, FILTERS);
   const list = participants.useList(params);
   const event = eventQuery.data;
@@ -146,6 +175,30 @@ export default function Participants() {
           }}
         />
       </div>
+
+      <Dialog
+        open={Boolean(removing)}
+        onClose={() => setRemoving(null)}
+        title={removing ? `Remove ${removing.name}?` : ""}
+        footer={
+          <>
+            <Button onClick={() => setRemoving(null)} data-autofocus>
+              Keep them
+            </Button>
+            <Button variant="danger" disabled={removeMutation.isPending} onClick={() => removeMutation.mutate(removing)}>
+              {removeMutation.isPending ? "Removing" : "Remove"}
+            </Button>
+          </>
+        }
+      >
+        {removing ? (
+          <p>
+            {removing.status === "registered" && event?.waitlisted_count
+              ? "They lose their seat, and the next person on the waitlist gets it."
+              : "They lose their place at this event. They can register again if there is room."}
+          </p>
+        ) : null}
+      </Dialog>
     </>
   );
 }

@@ -43,7 +43,7 @@ STUDENTS = [
     "Fatima Sheikh", "Gaurav Pandey", "Anjali Das", "Ishaan Bajaj", "Divya Shetty",
 ]
 
-# (title, category, venue index, organizer index (0 = admin, 1-4 faculty), day offset,
+# (title, category, venue index, organizer index (0 = admin, 1-4 organisers), day offset,
 #  start hour, hours, capacity, kind)
 EVENTS = [
     ("Intro to robotics workshop", "Workshop", 2, 1, -18, 10, 3, 40, "past"),
@@ -79,7 +79,7 @@ def main() -> None:
         db.execute(text("TRUNCATE registrations, events, users RESTART IDENTITY CASCADE"))
 
         admin_pw = hash_password("admin123")
-        faculty_pw = hash_password("faculty123")
+        organiser_pw = hash_password("organiser123")
         student_pw = hash_password("student123")
 
         def email_for(name: str) -> str:
@@ -91,7 +91,7 @@ def main() -> None:
                  role="admin", department=ADMIN[1])
         ]
         for i, (name, dept) in enumerate(FACULTY, start=1):
-            users.append(User(name=name, email=f"faculty{i}@{DOMAIN}", password_hash=faculty_pw,
+            users.append(User(name=name, email=f"organiser{i}@{DOMAIN}", password_hash=organiser_pw,
                               role="faculty", department=dept))
         students: list[User] = []
         for i, name in enumerate(STUDENTS):
@@ -109,7 +109,7 @@ def main() -> None:
                 title=title, category=cat, venue=VENUES[venue], start_time=start,
                 end_time=start + timedelta(hours=hours), capacity=cap, organizer_id=users[org].id,
                 status="published", created_at=created,
-                description=f"{title} at the {VENUES[venue]}. Open to all students and faculty.",
+                description=f"{title} at the {VENUES[venue]}. Open to all students and organisers.",
             )
             events.append(ev)
         db.add_all(events)
@@ -184,7 +184,7 @@ def main() -> None:
         print(f"Seeded {len(users) + len(students)} users, {len(events)} events, {added} registrations.\n")
         print("Demo logins")
         print(f"  admin    admin@{DOMAIN} / admin123")
-        print(f"  faculty  faculty1@{DOMAIN} / faculty123  (faculty1 to faculty4)")
+        print(f"  organiser  organiser1@{DOMAIN} / organiser123  (organiser1 to organiser4)")
         print(f"  student  {students[0].email} / student123  (all students use student123)")
 
 

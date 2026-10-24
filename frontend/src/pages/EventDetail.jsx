@@ -149,7 +149,7 @@ export default function EventDetail() {
               <span className="mono">{formatTimeRange(event.start_time, event.end_time)}</span>
             </Detail>
             <Detail label="Venue">{event.venue}</Detail>
-            <Detail label="Organizer">{event.organizer_name || "Unknown"}</Detail>
+            <Detail label="Organiser">{event.organizer_name || "Unknown"}</Detail>
             <Detail label="Seats">
               <span className="mono">
                 {event.registered_count} of {event.capacity}
@@ -172,6 +172,7 @@ export default function EventDetail() {
                 Manage participants
               </Button>
               <Button to={`/events/${event.id}/edit`}>Edit event</Button>
+              <Button to={`/events/new?copy=${event.id}`}>Duplicate event</Button>
               <Button variant="danger" onClick={() => setConfirming(true)}>
                 Delete event
               </Button>

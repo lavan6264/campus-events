@@ -12,7 +12,7 @@ const API = process.env.API_URL || "http://localhost:8000/api";
 
 const accounts = {
   student: ["aarav.sharma@campus-demo.test", "student123"],
-  faculty: ["faculty1@campus-demo.test", "faculty123"],
+  organiser: ["organiser1@campus-demo.test", "organiser123"],
   admin: ["admin@campus-demo.test", "admin123"],
 };
 const sessions = {};
@@ -29,8 +29,8 @@ const screens = [
   { name: "explore", path: "/events", as: "student" },
   { name: "event detail", path: `/events/${eventId}`, as: "student" },
   { name: "dashboard (admin)", path: "/", as: "admin" },
-  { name: "my events", path: "/my-events", as: "faculty" },
-  { name: "create event", path: "/events/new", as: "faculty" },
+  { name: "my events", path: "/my-events", as: "organiser" },
+  { name: "create event", path: "/events/new", as: "organiser" },
   { name: "edit event", path: `/events/${eventId}/edit`, as: "admin" },
   { name: "participants", path: `/events/${eventId}/participants`, as: "admin" },
   { name: "reports", path: "/reports", as: "admin" },

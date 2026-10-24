@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     jwt_secret: str = "dev-secret-change-me"
     jwt_expire_minutes: int = 480
     frontend_origin: str = "http://localhost:5173"
+    upload_dir: str = str(BACKEND_DIR / "uploads")
     gemini_api_key: str = ""
     gemini_model: str = "gemini-3.5-flash-lite"
 

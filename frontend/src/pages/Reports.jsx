@@ -10,14 +10,14 @@ import { api } from "../lib/crud/api.js";
 import DataTable from "../lib/crud/DataTable.jsx";
 import FilterBar, { toApiParams } from "../lib/crud/FilterBar.jsx";
 import { useQueryState } from "../lib/crud/useQueryState.js";
-import { formatDayMonth, formatDateTime } from "../lib/format.js";
+import { formatDayMonth, formatDateTime, roleWithArticle } from "../lib/format.js";
 import { users } from "../resources/index.js";
 import styles from "./pages.module.css";
 import reportStyles from "./reports.module.css";
 
 const ROLE_OPTIONS = [
   { value: "student", label: "Student" },
-  { value: "faculty", label: "Faculty" },
+  { value: "faculty", label: "Organiser" },
   { value: "admin", label: "Admin" },
 ];
 
@@ -87,7 +87,7 @@ function UserTable() {
     mutationFn: ({ id, role }) => api(`/admin/users/${id}/role`, { method: "PATCH", body: { role } }),
     onSuccess: (updated) => {
       client.invalidateQueries({ queryKey: users.keys.all });
-      toast.success(`${updated.name} is now ${updated.role === "admin" ? "an admin" : `a ${updated.role} user`}`);
+      toast.success(`${updated.name} is now ${roleWithArticle(updated.role)}`);
     },
     onError: (error) => toast.error(error.message),
   });

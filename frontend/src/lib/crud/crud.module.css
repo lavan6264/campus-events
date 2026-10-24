@@ -155,6 +155,50 @@
   }
 }
 
+/* Card grid: the card version of the table */
+.cardsWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-16);
+}
+
+.cardsToolbar {
+  max-width: 280px;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--sp-16);
+  transition: opacity var(--shift);
+}
+
+.cardsFooter {
+  padding: var(--sp-4) 0;
+}
+
+.skeletonCard {
+  overflow: hidden;
+}
+
+.skeletonCover {
+  aspect-ratio: 16 / 9;
+  background: var(--row-divider);
+}
+
+.skeletonBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  padding: var(--sp-16);
+}
+
+@media (max-width: 720px) {
+  .cardsToolbar {
+    max-width: none;
+  }
+}
+
 /* Filter bar */
 .filters {
   display: flex;

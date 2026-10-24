@@ -1,3 +1,4 @@
+import pytest
 from datetime import datetime, timedelta, timezone
 
 NEW_EVENT = {
@@ -231,3 +232,27 @@ def test_event_routes_documented_with_filters(client):
     params = {p["name"] for p in spec["/api/events/"]["get"]["parameters"]}
     assert {"organizer", "upcoming", "start_time__gte", "start_time__lte", "category", "status__in", "q"} <= params
     assert set(spec["/api/events/{id}"]) == {"get", "put", "patch", "delete"}
+
+
+# cover image
+
+
+def test_event_cover_image_link(client, people, auth_headers):
+    headers = auth_headers(people["faculty"])
+    created = client.post("/api/events/", json={**NEW_EVENT, "image_url": "  https://example.test/cover.jpg "}, headers=headers)
+    assert created.status_code == 201 and created.json()["image_url"] == "https://example.test/cover.jpg"
+
+    without = client.post("/api/events/", json=NEW_EVENT, headers=headers)
+    assert without.json()["image_url"] is None
+    assert client.post("/api/events/", json={**NEW_EVENT, "image_url": ""}, headers=headers).json()["image_url"] is None
+
+    event_id = created.json()["id"]
+    assert client.patch(f"/api/events/{event_id}", json={"image_url": "/covers/lab.png"}, headers=headers).json()["image_url"] == "/covers/lab.png"
+    assert client.patch(f"/api/events/{event_id}", json={"title": "Renamed"}, headers=headers).json()["image_url"] == "/covers/lab.png"
+    assert client.patch(f"/api/events/{event_id}", json={"image_url": None}, headers=headers).json()["image_url"] is None
+
+
+@pytest.mark.parametrize("bad", ["javascript:alert(1)", "data:image/png;base64,AAAA", "//evil.test/x.png", "ftp://x.test/a.png", "https://x.test/a b.png", "cover.png"])
+def test_event_cover_image_must_be_a_web_link(client, people, auth_headers, bad):
+    res = client.post("/api/events/", json={**NEW_EVENT, "image_url": bad}, headers=auth_headers(people["faculty"]))
+    assert res.status_code == 422 and "image_url" in res.json()["fields"]

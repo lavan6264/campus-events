@@ -37,7 +37,8 @@ if (!browser) throw new Error("No Edge or Chrome found. Install one, or set up P
 const shots = [
   { name: "login", path: "/login", auth: false },
   { name: "dashboard", path: "/", auth: "student" },
-  { name: "dashboard-faculty", path: "/", auth: "faculty" },
+  { name: "dashboard-organiser", path: "/", auth: "organiser" },
+  { name: "my-events", path: "/my-events", auth: "organiser" },
   { name: "event-detail", path: "/events/8", auth: "student" },
   { name: "reports", path: "/reports", auth: "admin" },
   { name: "explore", path: "/events", auth: "student" },
@@ -47,7 +48,7 @@ const shots = [
 
 const accounts = {
   student: ["aarav.sharma@campus-demo.test", "student123"],
-  faculty: ["faculty1@campus-demo.test", "faculty123"],
+  organiser: ["organiser1@campus-demo.test", "organiser123"],
   admin: ["admin@campus-demo.test", "admin123"],
 };
 const sessions = {};

@@ -28,5 +28,6 @@ class Event(Base):
     end_time: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     capacity: Mapped[int]
     organizer_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT"))
+    image_url: Mapped[str | None] = mapped_column(String(500))
     status: Mapped[str] = mapped_column(String(20), default="published")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

@@ -25,7 +25,7 @@ const registerFields = [
   },
   {
     name: "role", label: "I am a", type: "select", required: true, placeholder: "Choose one",
-    options: [{ value: "student", label: "Student" }, { value: "faculty", label: "Faculty member" }],
+    options: [{ value: "student", label: "Student" }, { value: "faculty", label: "Organiser" }],
   },
   {
     name: "department", label: "Department", type: "select", emptyAs: null, placeholder: "Not set",
@@ -35,7 +35,7 @@ const registerFields = [
 
 const DEMOS = [
   { label: "Admin", email: "admin@campus-demo.test", password: "admin123" },
-  { label: "Faculty", email: "faculty1@campus-demo.test", password: "faculty123" },
+  { label: "Organiser", email: "organiser1@campus-demo.test", password: "organiser123" },
   { label: "Student", email: "aarav.sharma@campus-demo.test", password: "student123" },
 ];
 

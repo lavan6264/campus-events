@@ -1,5 +1,12 @@
 // One fetch wrapper for the whole app: base URL, bearer token, JSON, normalised errors.
 const BASE = (import.meta.env.VITE_API_URL || "/api").replace(/\/$/, "");
+const ORIGIN = /^https?:\/\//.test(BASE) ? new URL(BASE).origin : "";
+
+/** Uploaded images live on the API server, so a path such as /api/uploads/x.png needs its origin. */
+export function assetUrl(path) {
+  return path && path.startsWith("/") && !path.startsWith("//") ? ORIGIN + path : path;
+}
+
 const TOKEN_KEY = "ce.token";
 const USER_KEY = "ce.user";
 
@@ -83,7 +90,8 @@ const FALLBACK_MESSAGES = {
  */
 export async function api(path, { method = "GET", params, body, auth = true, as = "json", signal } = {}) {
   const headers = { Accept: as === "json" ? "application/json" : "*/*" };
-  if (body !== undefined) headers["Content-Type"] = "application/json";
+  const isForm = typeof FormData !== "undefined" && body instanceof FormData;
+  if (body !== undefined && !isForm) headers["Content-Type"] = "application/json";
   const token = session.token;
   if (auth && token) headers.Authorization = `Bearer ${token}`;
 
@@ -92,7 +100,7 @@ export async function api(path, { method = "GET", params, body, auth = true, as 
     response = await fetch(`${BASE}${path}${buildQuery(params)}`, {
       method,
       headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body === undefined ? undefined : isForm ? body : JSON.stringify(body),
       signal,
     });
   } catch (error) {

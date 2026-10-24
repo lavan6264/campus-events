@@ -11,7 +11,7 @@ export function installFakeApi(routes) {
     const parsed = new URL(url, "http://localhost");
     const path = parsed.pathname.replace(/^\/api/, "");
     const method = (init.method || "GET").toUpperCase();
-    const body = init.body ? JSON.parse(init.body) : undefined;
+    const body = init.body instanceof FormData ? Object.fromEntries(init.body) : init.body ? JSON.parse(init.body) : undefined;
     const call = { method, path, params: Object.fromEntries(parsed.searchParams), body, headers: init.headers || {} };
     calls.push(call);
     const handler = routes[`${method} ${path}`];

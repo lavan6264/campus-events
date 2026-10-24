@@ -5,6 +5,7 @@ import { CloseIcon, MenuIcon, SearchIcon } from "../components/icons.jsx";
 import ThemeToggle from "../components/ThemeToggle.jsx";
 import { useAuth } from "../lib/auth.jsx";
 import { INSTITUTION_LOGO, INSTITUTION_NAME } from "../lib/config.js";
+import { roleLabel } from "../lib/format.js";
 import styles from "./Shell.module.css";
 
 const TitleContext = createContext(() => {});
@@ -30,8 +31,8 @@ const NAV = [
 export function Brand({ heading = false }) {
   const Name = heading ? "h1" : "span";
   return (
-    <div className={styles.brand}>
-      {INSTITUTION_LOGO ? <img src={INSTITUTION_LOGO} alt="" className={styles.logo} /> : null}
+    <div className={`${styles.brand} ${heading ? styles.brandLarge : ""}`}>
+      {INSTITUTION_LOGO ? <img src={INSTITUTION_LOGO} alt="" className={styles.logo} width="36" height="36" /> : null}
       <Name className={styles.brandName}>{INSTITUTION_NAME}</Name>
     </div>
   );
@@ -113,7 +114,7 @@ export default function Shell() {
           <div className={styles.account}>
             <p className={styles.userName}>{user.name}</p>
             <p className={`${styles.userRole} small muted`}>
-              {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+              {roleLabel(user.role)}
               {user.department ? `, ${user.department}` : ""}
             </p>
             <ThemeToggle className={styles.logout} />

@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { usePageTitle } from "../app/Shell.jsx";
 import Button from "../components/Button.jsx";
 import { Textarea } from "../components/Input.jsx";
+import ImagePicker from "../components/ImagePicker.jsx";
 import Skeleton from "../components/Skeleton.jsx";
 import { useAuth } from "../lib/auth.jsx";
 import ResourceForm from "../lib/crud/ResourceForm.jsx";
@@ -42,6 +43,11 @@ function buildFields(categories, isEdit) {
       options: [{ value: "published", label: "Published" }, { value: "cancelled", label: "Cancelled" }],
     });
   }
+  fields.push({
+    name: "image_url", label: "Cover image link", maxLength: 500, span: 2, emptyAs: null,
+    help: "Optional. A link starting with https:// to a picture. Leave empty for a drawn cover.",
+    validate: (value) => (/^(https?:\/\/|\/(?!\/))\S+$/.test(value) ? null : "Use a link that starts with https://"),
+  });
   fields.push({ name: "description", label: "Description", type: "textarea", maxLength: 5000, rows: 6, span: 2, emptyAs: "" });
   return fields;
 }
@@ -105,6 +111,9 @@ export default function EventForm({ mode }) {
   const navigate = useNavigate();
   const categories = useCategories();
   const existing = events.useOne(id, { enabled: isEdit });
+  const [params] = useSearchParams();
+  const copyId = !isEdit ? params.get("copy") : null;
+  const source = events.useOne(copyId, { enabled: Boolean(copyId) });
   const create = events.useCreate();
   const update = events.useUpdate();
   usePageTitle(isEdit ? "Edit event" : "Create event");
@@ -124,6 +133,25 @@ export default function EventForm({ mode }) {
     if (user.role !== "admin" && user.id !== existing.data.organizer_id) return <ErrorPage code={403} />;
   }
 
+  if (copyId && source.isLoading) {
+    return (
+      <div className={`${styles.formPanel} glass-2`} aria-busy="true">
+        <Skeleton width="40%" height={18} />
+        <Skeleton width="100%" height={40} />
+        <Skeleton width="100%" height={120} />
+      </div>
+    );
+  }
+  const copying = copyId && source.data ? source.data : null;
+  const initialValues = isEdit
+    ? existing.data
+    : copying
+      ? {
+          title: `Copy of ${copying.title}`, description: copying.description, category: copying.category,
+          venue: copying.venue, capacity: copying.capacity, image_url: copying.image_url || "", status: "published",
+        }
+      : { status: "published" };
+
   const fields = buildFields(categories.data, isEdit);
 
   return (
@@ -134,13 +162,27 @@ export default function EventForm({ mode }) {
         ))}
       </datalist>
       <ResourceForm
-        key={isEdit ? existing.data.id : "new"}
+        key={isEdit ? existing.data.id : copying ? `copy-${copying.id}` : "new"}
         fields={fields}
-        initialValues={isEdit ? existing.data : { status: "published" }}
+        initialValues={initialValues}
         submitLabel={isEdit ? "Save changes" : "Create event"}
         savingLabel="Saving"
         onCancel={() => navigate(isEdit ? `/events/${id}` : "/events")}
-        before={(props) => <DraftBox {...props} />}
+        before={(props) => (
+          <>
+            {copying ? (
+              <p className={styles.sourceNote} role="status">
+                Copied from "{copying.title}". Set the date and time for the new event.
+              </p>
+            ) : null}
+            <DraftBox {...props} />
+            <ImagePicker
+              value={props.values.image_url}
+              category={props.values.category}
+              onChange={(url) => props.setValues({ image_url: url })}
+            />
+          </>
+        )}
         onSubmit={async (payload) => {
           if (isEdit) {
             const saved = await update.mutateAsync({ id, ...payload });

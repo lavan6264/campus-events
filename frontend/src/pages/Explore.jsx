@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Button from "../components/Button.jsx";
+import EventCard from "../components/EventCard.jsx";
 import { Availability } from "../components/EventRow.jsx";
 import { Input } from "../components/Input.jsx";
 import Tabs from "../components/Tabs.jsx";
 import { useAuth } from "../lib/auth.jsx";
+import CardGrid from "../lib/crud/CardGrid.jsx";
 import DataTable from "../lib/crud/DataTable.jsx";
 import FilterBar, { toApiParams } from "../lib/crud/FilterBar.jsx";
 import { useQueryState } from "../lib/crud/useQueryState.js";
@@ -13,7 +15,21 @@ import { aiSearch, useCategories } from "../resources/actions.js";
 import { events } from "../resources/index.js";
 import styles from "./pages.module.css";
 
-const DEFAULTS = { sort: "start_time", limit: "12", upcoming: "true" };
+const DEFAULTS = { sort: "start_time", limit: "12", upcoming: "true", view: "cards" };
+
+const SORT_OPTIONS = [
+  { value: "start_time", label: "Date, soonest first" },
+  { value: "-start_time", label: "Date, latest first" },
+  { value: "title", label: "Title, A to Z" },
+  { value: "-title", label: "Title, Z to A" },
+  { value: "category", label: "Category" },
+];
+
+const VIEWS = [
+  { id: "cards", label: "Cards" },
+  { id: "table", label: "Table" },
+];
+
 
 const endOfDay = (date) => `${date}T23:59:59`;
 
@@ -32,7 +48,7 @@ function buildFilters(categories) {
     },
     { name: "from", label: "From date", type: "date", param: "start_time__gte" },
     { name: "to", label: "To date", type: "date", param: "start_time__lte", transform: endOfDay },
-    { name: "organizer", label: "Organizer", type: "text", placeholder: "Name" },
+    { name: "organizer", label: "Organiser", type: "text", placeholder: "Name" },
   ];
 }
 
@@ -134,11 +150,15 @@ export default function Explore() {
   const list = events.useList(toApiParams(state, filters));
   const canCreate = user.role === "faculty" || user.role === "admin";
 
-  const emptyAction = (
-    <Button variant="primary" onClick={() => clear()}>
-      Clear filters
-    </Button>
-  );
+  const empty = {
+    title: "No events match",
+    text: "Clear filters or try a different date.",
+    action: (
+      <Button variant="primary" onClick={() => clear(["view"])}>
+        Clear filters
+      </Button>
+    ),
+  };
 
   return (
     <>
@@ -146,11 +166,16 @@ export default function Explore() {
         <div className={styles.searchToggle}>
           <Tabs tabs={MODES} value={mode} onChange={setMode} label="Search mode" idPrefix="explore-mode" />
         </div>
-        {canCreate ? (
-          <Button variant="primary" to="/events/new">
-            Create event
-          </Button>
-        ) : null}
+        <div className={styles.viewTools}>
+          <div className={styles.viewToggle}>
+            <Tabs tabs={VIEWS} value={state.view} onChange={(view) => setState({ view })} label="View" idPrefix="explore-view" />
+          </div>
+          {canCreate ? (
+            <Button variant="primary" to="/events/new">
+              Create event
+            </Button>
+          ) : null}
+        </div>
       </div>
 
       {mode === "ai" ? <AiSearch onApply={(patch) => setState(patch)} /> : null}
@@ -160,7 +185,7 @@ export default function Explore() {
         values={state}
         defaults={DEFAULTS}
         onChange={setState}
-        onClear={() => clear()}
+        onClear={() => clear(["view"])}
         label="Filter events"
       />
       <div>
@@ -173,20 +198,37 @@ export default function Explore() {
             "Loading events"
           )}
         </p>
-        <DataTable
-          caption="Events"
-          noun="events"
-          columns={columns}
-          data={list.data}
-          isLoading={list.isLoading}
-          isFetching={list.isFetching}
-          error={list.error}
-          onRetry={list.refetch}
-          sort={state.sort}
-          onSort={(sort) => setState({ sort })}
-          onPage={(page) => setState({ page })}
-          empty={{ title: "No events match", text: "Clear filters or try a different date.", action: emptyAction }}
-        />
+        {state.view === "table" ? (
+          <DataTable
+            caption="Events"
+            noun="events"
+            columns={columns}
+            data={list.data}
+            isLoading={list.isLoading}
+            isFetching={list.isFetching}
+            error={list.error}
+            onRetry={list.refetch}
+            sort={state.sort}
+            onSort={(sort) => setState({ sort })}
+            onPage={(page) => setState({ page })}
+            empty={empty}
+          />
+        ) : (
+          <CardGrid
+            noun="events"
+            data={list.data}
+            isLoading={list.isLoading}
+            isFetching={list.isFetching}
+            error={list.error}
+            onRetry={list.refetch}
+            sort={state.sort}
+            onSort={(sort) => setState({ sort })}
+            sortOptions={SORT_OPTIONS}
+            onPage={(page) => setState({ page })}
+            renderCard={(event) => <EventCard event={event} />}
+            empty={empty}
+          />
+        )}
       </div>
     </>
   );
