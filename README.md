@@ -23,7 +23,7 @@ The database listens on host port **5433** (container port 5432), so it does not
 ## Decisions
 
 - PostgreSQL 16 runs only through Docker Compose, with a named volume.
-- Git is local only. No remote, no CI workflows.
+- The repository is at github.com/lavan6264/campus-events. Commits are small and use `feat:`, `fix:`, `test:` and `docs:` prefixes. No CI workflows.
 - Python: the code targets 3.12 or newer. It was developed on 3.13.
 - Roles and status columns are `VARCHAR` with `CHECK` constraints instead of native PostgreSQL enums, which keeps migrations simple.
 - A user cannot hold two confirmed registrations whose time ranges overlap. Waitlisted registrations are ignored by this check. If a waitlisted user is promoted into an event that overlaps another confirmed event of theirs, the promotion stays and both events show a clash notice.
