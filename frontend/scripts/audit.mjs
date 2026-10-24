@@ -1,4 +1,4 @@
-// Responsive and accessibility audit of every screen, at phone and desktop widths, glass on and off.
+// Responsive and accessibility audit of every screen, at phone, tablet and desktop widths.
 // Checks: no horizontal scroll, touch targets on phones, axe-core violations, images and inputs have names.
 // Needs the API on :8000 (seeded) and the frontend on :5173.
 import { readFileSync } from "node:fs";
@@ -57,15 +57,14 @@ for (const vp of viewports) {
     const page = await context.newPage();
     await page.goto(APP + screen.path, { waitUntil: "networkidle" });
     await page.waitForTimeout(500);
-    for (const mode of ["glass", "opaque"]) {
-      await page.evaluate((m) => (m === "opaque" ? document.documentElement.setAttribute("data-glass", "off") : document.documentElement.removeAttribute("data-glass")), mode);
-      const where = `${screen.name} @ ${vp.label} ${mode}`;
+    for (const mode of ["default"]) {
+      const where = `${screen.name} @ ${vp.label}`;
       checked += 1;
 
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       if (overflow > 0) problems.push(`${where}: horizontal scroll of ${overflow}px`);
 
-      if (vp.width <= 520 && mode === "glass") {
+      if (vp.width <= 520) {
         const small = await page.evaluate(() => {
           const out = [];
           for (const el of document.querySelectorAll("a[href], button, input:not([type=hidden]), select, textarea, [role=tab]")) {
@@ -89,8 +88,7 @@ for (const vp of viewports) {
           await page.waitForLoadState("networkidle");
           await page.addScriptTag({ content: axeSource });
           result = await page.evaluate(async () =>
-            // Contrast over blurred glass cannot be measured by a script, the token tests cover it.
-            window.axe.run(document, { rules: { "color-contrast": { enabled: false } } }),
+            window.axe.run(document),
           );
           break;
         } catch (error) {

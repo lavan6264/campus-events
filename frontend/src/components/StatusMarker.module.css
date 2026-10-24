@@ -14,15 +14,19 @@
 /* Neutral shapes that differ by form as well as fill: filled square, hollow square, dash. */
 .marker {
   flex: none;
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 2px;
   background: currentColor;
 }
 
+.registered {
+  background: var(--ok);
+}
+
 .waitlisted {
   background: transparent;
-  box-shadow: inset 0 0 0 1.5px currentColor;
+  box-shadow: inset 0 0 0 1.5px var(--gold);
 }
 
 .cancelled {

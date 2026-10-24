@@ -1,29 +1,26 @@
-/* The three glass levels. Never nest glass inside glass more than one level:
-   inside a panel use plain tonal rows and hairline dividers. */
+/* Surface levels. Class names come from the first, translucent design and are kept so components
+   did not have to change. They are flat: a solid fill and a subtle border, no blur and no shadow.
+   Level 1: sidebar, filter bars, the figures strip. Level 2: panels, tables, forms.
+   Level 3: toasts and anything raised above the page. */
 .glass-1,
 .glass-2,
 .glass-3 {
   border: 1px solid var(--hairline);
-  box-shadow: var(--glass-highlight), var(--glass-shadow);
 }
 
 .glass-1 {
   background: var(--g1-bg);
-  -webkit-backdrop-filter: var(--g1-filter);
-  backdrop-filter: var(--g1-filter);
   border-radius: var(--radius-panel);
 }
 
 .glass-2 {
   background: var(--g2-bg);
-  -webkit-backdrop-filter: var(--g2-filter);
-  backdrop-filter: var(--g2-filter);
   border-radius: var(--radius-panel);
 }
 
 .glass-3 {
   background: var(--g3-bg);
-  -webkit-backdrop-filter: var(--g3-filter);
-  backdrop-filter: var(--g3-filter);
+  border-color: var(--hairline-strong);
   border-radius: var(--radius-control);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
 }

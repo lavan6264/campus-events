@@ -2,38 +2,6 @@
   position: fixed;
   inset: 0;
   z-index: -1;
-  overflow: hidden;
   background: var(--base);
   pointer-events: none;
-}
-
-/* Solid shapes softened with a blur. Static: nothing here moves or animates. */
-.shape {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(120px);
-}
-
-.one {
-  width: 560px;
-  height: 560px;
-  top: -160px;
-  left: -120px;
-  background: var(--blob-1);
-}
-
-.two {
-  width: 480px;
-  height: 480px;
-  right: -140px;
-  top: 28%;
-  background: var(--blob-2);
-}
-
-.three {
-  width: 400px;
-  height: 400px;
-  left: 30%;
-  bottom: -200px;
-  background: var(--blob-3);
 }

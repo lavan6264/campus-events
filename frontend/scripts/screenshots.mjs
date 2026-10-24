@@ -1,4 +1,4 @@
-// Takes the README screenshots: each screen with glass on and with the opaque fallback forced.
+// Takes the README screenshots of the main screens.
 // Needs the API on :8000 (seeded) and the frontend on :5173. Uses an installed Microsoft Edge or Chrome.
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -37,6 +37,9 @@ if (!browser) throw new Error("No Edge or Chrome found. Install one, or set up P
 const shots = [
   { name: "login", path: "/login", auth: false },
   { name: "dashboard", path: "/", auth: "student" },
+  { name: "dashboard-faculty", path: "/", auth: "faculty" },
+  { name: "event-detail", path: "/events/1", auth: "student" },
+  { name: "reports", path: "/reports", auth: "admin" },
   { name: "explore", path: "/events", auth: "student" },
   { name: "explore-mobile", path: "/events", auth: "student", viewport: { width: 390, height: 900 } },
   { name: "dashboard-mobile", path: "/", auth: "student", viewport: { width: 390, height: 900 } },
@@ -44,6 +47,7 @@ const shots = [
 
 const accounts = {
   student: ["aarav.sharma@campus-demo.test", "student123"],
+  faculty: ["faculty1@campus-demo.test", "faculty123"],
   admin: ["admin@campus-demo.test", "admin123"],
 };
 const sessions = {};
@@ -65,15 +69,9 @@ for (const shot of shots) {
   const page = await context.newPage();
   await page.goto(APP + shot.path, { waitUntil: "networkidle" });
   await page.evaluate(() => document.fonts.ready);
-  for (const mode of ["glass", "opaque"]) {
-    await page.evaluate((m) => {
-      if (m === "opaque") document.documentElement.setAttribute("data-glass", "off");
-      else document.documentElement.removeAttribute("data-glass");
-    }, mode);
-    await page.waitForTimeout(250);
-    await page.screenshot({ path: resolve(out, `${shot.name}-${mode}.png`), fullPage: false });
-    console.log("saved", `${shot.name}-${mode}.png`);
-  }
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: resolve(out, `${shot.name}.png`), fullPage: false });
+  console.log("saved", `${shot.name}.png`);
   await context.close();
 }
 await browser.close();

@@ -32,15 +32,13 @@
 }
 
 .secondary {
-  background: var(--g1-bg);
-  -webkit-backdrop-filter: var(--g1-filter);
-  backdrop-filter: var(--g1-filter);
+  background: var(--panel-raised);
   border-color: var(--hairline-strong);
   color: var(--text);
 }
 
 .secondary:hover {
-  background: var(--row-hover);
+  background: var(--hairline);
   border-color: var(--text-muted);
   color: var(--text);
 }

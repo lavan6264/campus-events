@@ -5,8 +5,8 @@ import { describe, expect, it } from "vitest";
 // Reads the real tokens so the check cannot drift from the CSS.
 const css = readFileSync(resolve(process.cwd(), "src/styles/tokens.css"), "utf8");
 const token = (name) => {
-  const m = css.match(new RegExp(`--${name}:\\s*([^;]+);`));
-  if (!m) throw new Error(`missing token ${name}`);
+  const m = css.match(new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6}|rgba?\\([^)]*\\))`));
+  if (!m) throw new Error(`missing colour token ${name}`);
   return m[1].trim();
 };
 
@@ -39,75 +39,52 @@ const ratio = (a, b) => {
   return (hi + 0.05) / (lo + 0.05);
 };
 
-// The lightest thing a surface can sit on is the lightest backdrop shape.
-const backdrops = ["base", "blob-1", "blob-2", "blob-3"].map((n) => parse(token(n)));
-const lightest = backdrops.reduce((a, b) => (luminance(a) > luminance(b) ? a : b));
+const surfaces = Object.fromEntries(["base", "sidebar", "panel", "panel-raised"].map((n) => [n, parse(token(n))]));
+const c = Object.fromEntries(
+  ["text", "text-muted", "accent", "accent-hover", "gold", "ok", "warning", "text-on-accent", "input-border", "input-fill"].map((n) => [n, parse(token(n))]),
+);
+// Hovered rows are a faint white wash over a panel.
+const hoveredPanel = over(parse(token("row-hover")), surfaces.panel);
 
-const surfaces = {
-  "glass-1": backdrops.map((b) => over(parse(token("glass-1-fill")), b)),
-  "glass-2": backdrops.map((b) => over(parse(token("glass-2-fill")), b)),
-  "glass-3": backdrops.map((b) => over(parse(token("glass-3-fill")), b)),
-  "opaque fallback 1 and 2": [parse(token("opaque-1"))],
-  "opaque fallback 3": [parse(token("opaque-3"))],
-};
+describe("WCAG AA on every surface", () => {
+  for (const [name, bg] of Object.entries({ ...surfaces, "a hovered row": hoveredPanel })) {
+    it(`body text and muted text on ${name} are at least 4.5:1`, () => {
+      expect(ratio(c.text, bg)).toBeGreaterThanOrEqual(4.5);
+      expect(ratio(c["text-muted"], bg)).toBeGreaterThanOrEqual(4.5);
+    });
 
-const text = parse(token("text"));
-const muted = parse(token("text-muted"));
-const accent = parse(token("accent"));
-const accentHover = parse(token("accent-hover"));
-const warning = parse(token("warning"));
-
-describe("WCAG AA on every glass level", () => {
-  for (const [name, list] of Object.entries(surfaces)) {
-    for (const [label, fg] of [["text", text], ["muted text", muted]]) {
-      it(`${label} on ${name} is at least 4.5:1`, () => {
-        for (const bg of list) expect(ratio(fg, bg)).toBeGreaterThanOrEqual(4.5);
-      });
-    }
-  }
-
-  for (const name of ["glass-2", "glass-3", "opaque fallback 1 and 2", "opaque fallback 3"]) {
-    it(`accent, accent hover and warning text on ${name} are at least 4.5:1`, () => {
-      for (const bg of surfaces[name]) {
-        for (const fg of [accent, accentHover, warning]) expect(ratio(fg, bg)).toBeGreaterThanOrEqual(4.5);
+    it(`mint links, gold highlights, the green status and the clay warning on ${name} are at least 4.5:1`, () => {
+      for (const key of ["accent", "accent-hover", "gold", "ok", "warning"]) {
+        expect(ratio(c[key], bg), key).toBeGreaterThanOrEqual(4.5);
       }
     });
   }
 
-  it("accent links on glass-1 are at least 4.5:1", () => {
-    for (const bg of surfaces["glass-1"]) expect(ratio(accent, bg)).toBeGreaterThanOrEqual(4.5);
-  });
-
   it("text on the primary button is at least 4.5:1, also on hover", () => {
-    const onAccent = parse(token("text-on-accent"));
-    expect(ratio(onAccent, accent)).toBeGreaterThanOrEqual(4.5);
-    expect(ratio(onAccent, accentHover)).toBeGreaterThanOrEqual(4.5);
+    expect(ratio(c["text-on-accent"], c.accent)).toBeGreaterThanOrEqual(4.5);
+    expect(ratio(c["text-on-accent"], c["accent-hover"])).toBeGreaterThanOrEqual(4.5);
   });
 
-  it("form field borders are at least 3:1 against the surface and against the field fill", () => {
-    const border = parse(token("input-border"));
-    const fill = parse(token("input-fill"));
-    for (const name of ["glass-2", "glass-3", "opaque fallback 1 and 2"]) {
-      for (const bg of surfaces[name]) {
-        expect(ratio(border, bg)).toBeGreaterThanOrEqual(3);
-        expect(ratio(border, over(fill, bg))).toBeGreaterThanOrEqual(3);
-      }
+  it("form field borders are at least 3:1 against the surface and the field fill", () => {
+    for (const name of ["base", "sidebar", "panel", "panel-raised"]) {
+      expect(ratio(c["input-border"], surfaces[name]), name).toBeGreaterThanOrEqual(3);
     }
+    expect(ratio(c["input-border"], c["input-fill"])).toBeGreaterThanOrEqual(3);
   });
 
   it("text stays readable inside a form field", () => {
-    const fill = parse(token("input-fill"));
-    for (const bg of surfaces["glass-2"]) {
-      expect(ratio(text, over(fill, bg))).toBeGreaterThanOrEqual(4.5);
-      expect(ratio(muted, over(fill, bg))).toBeGreaterThanOrEqual(4.5);
-    }
+    expect(ratio(c.text, c["input-fill"])).toBeGreaterThanOrEqual(4.5);
+    expect(ratio(c["text-muted"], c["input-fill"])).toBeGreaterThanOrEqual(4.5);
   });
 
-  it("the focus ring is at least 3:1 against every surface", () => {
-    for (const list of Object.values(surfaces)) for (const bg of list) expect(ratio(accent, bg)).toBeGreaterThanOrEqual(3);
+  it("the focus ring is at least 3:1 against every surface and the field fill", () => {
+    for (const bg of [...Object.values(surfaces), c["input-fill"]]) expect(ratio(c.accent, bg)).toBeGreaterThanOrEqual(3);
   });
 
-  it("the lightest backdrop shape stays close to the base hue family", () => {
-    expect(luminance(lightest)).toBeLessThan(0.05);
+  it("the page, sidebar and panels step up in lightness so each reads as a layer", () => {
+    const l = (n) => luminance(surfaces[n]);
+    expect(l("base")).toBeLessThan(l("sidebar"));
+    expect(l("sidebar")).toBeLessThan(l("panel"));
+    expect(l("panel")).toBeLessThan(l("panel-raised"));
   });
 });

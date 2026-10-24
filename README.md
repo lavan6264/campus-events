@@ -4,7 +4,7 @@ A smart campus event management system. Students and faculty create, discover an
 
 The idea at the centre: a small, reusable **CRUD framework** for REST (backend and frontend). Users, events and registrations are built on top of it. A new resource takes about 20 lines, not a new set of hand written routes.
 
-![Dashboard](docs/screenshots/dashboard-glass.png)
+![Dashboard](docs/screenshots/dashboard.png)
 
 ## Contents
 
@@ -17,7 +17,7 @@ The idea at the centre: a small, reusable **CRUD framework** for REST (backend a
 7. [The query convention](#the-query-convention)
 8. [Add a new resource in 20 lines](#add-a-new-resource-in-20-lines)
 9. [AI features and fallbacks](#ai-features-and-fallbacks)
-10. [Design system: glass tokens and fallbacks](#design-system-glass-tokens-and-fallbacks)
+10. [Design system](#design-system)
 11. [Tests and checks](#tests-and-checks)
 12. [Five minute demo script](#five-minute-demo-script)
 13. [Decisions](#decisions)
@@ -107,7 +107,7 @@ backend/app/ai/            one client module, then search, draft, recommend, sum
 backend/alembic/           migrations (tables are never created outside tests)
 frontend/src/lib/crud/     api.js, createResource, useQueryState, DataTable, FilterBar, ResourceForm
 frontend/src/components/   own Button, Input, Select, Dialog, Tabs, Toast, charts, icons
-frontend/src/styles/       tokens.css, glass.css, base.css
+frontend/src/styles/       tokens.css, glass.css (the surface classes), base.css
 ```
 
 Two rules keep the data safe:
@@ -288,45 +288,41 @@ Notes from building it:
 - AI endpoints are limited to 30 requests a minute per person.
 - Tests mock the SDK for success, errors, timeouts, bad JSON and invalid answers. No test calls the real API.
 
-## Design system: glass tokens and fallbacks
+## Design system
 
-A calm, static, single hue backdrop with translucent panels over it. All values live in `frontend/src/styles/tokens.css`. Components use only these tokens.
+A calm, dark green interface built from solid surfaces that step up in lightness, so each layer reads clearly: page, sidebar, panels, raised items. Mint is for actions and links. Champagne gold is kept for the few things that matter most. All values live in `frontend/src/styles/tokens.css`, and components use only those tokens.
 
-| Token | Value |
-|---|---|
-| Backdrop | base `#0E1918`, three blurred shapes `#17302E`, `#1B3B37`, `#142826`. Static. |
-| Text, muted text | `#EAF0EE`, `#A3B3AF` |
-| Accent, hover, on accent | `#7CCDBB`, `#95DBCB`, `#0E1918` |
-| Warning (full, cancelled, destructive, always with a text label) | `#E0976B` |
-| Hairlines | `rgba(255,255,255,0.14)`, strong `0.22` |
-| Form fields | fill `rgba(8,16,15,0.6)`, border `#7F918D`, 2px accent focus ring |
-| Spacing | 4, 8, 12, 16, 24, 32, 48, 64 |
-| Radius | 8 controls, 16 panels, 20 dialogs |
-| Type | IBM Plex Sans for the interface, IBM Plex Mono for dates and numbers. Sizes 13, 15, 18, 24, 32. Self hosted. |
-
-| Glass level | Used for | Fill | Blur |
-|---|---|---|---|
-| `glass-1` | Sidebar, page sections, filter bars | `rgba(255,255,255,0.06)` | 20px, saturate 120% |
-| `glass-2` | Tables, forms, dialogs, event detail | `rgba(18,32,30,0.72)` | 24px, saturate 115% |
-| `glass-3` | Toasts, popovers | `rgba(22,38,36,0.88)` | 28px |
-
-Every surface has a 1px hairline, an inner top highlight and one soft shadow. Glass is never nested more than one level, so inside a panel there are only tonal rows and hairline dividers. Blur is never animated.
-
-**How the fallbacks work.** Each glass class paints from three variables (`--g1-bg`, `--g1-filter` and the same for levels 2 and 3). Three conditions swap those variables for opaque fills (`#16231F` for levels 1 and 2, `#1B2B27` for level 3, hairlines kept):
-
-1. `@supports not (backdrop-filter: blur(1px))`
-2. `@media (prefers-reduced-transparency: reduce)`
-3. `<html data-glass="off">`, a manual switch used for the screenshots
-
-| Screen | Glass | Opaque fallback |
+| Role | Token | Value |
 |---|---|---|
-| Sign in | ![](docs/screenshots/login-glass.png) | ![](docs/screenshots/login-opaque.png) |
-| Dashboard | ![](docs/screenshots/dashboard-glass.png) | ![](docs/screenshots/dashboard-opaque.png) |
-| Explore | ![](docs/screenshots/explore-glass.png) | ![](docs/screenshots/explore-opaque.png) |
-| Reports | ![](docs/screenshots/reports-glass.png) | |
-| Phone | ![](docs/screenshots/explore-mobile-glass.png) | ![](docs/screenshots/explore-mobile-opaque.png) |
+| Page background | `--base` | `#0B1513` |
+| Sidebar, filter bars, the figures strip | `--sidebar` | `#142521` |
+| Cards and panels (tables, forms, lists, event detail) | `--panel` | `#172925` |
+| Raised items (toasts, selected tab, secondary buttons) | `--panel-raised` | `#1D332E` |
+| Borders and dividers | `--hairline` | `#30443E` |
+| Main text, secondary text | `--text`, `--text-muted` | `#E7F0EC`, `#A2B3AC` |
+| Links, buttons, focus ring | `--accent` | `#70D6B5` (hover `#8FE3C8`) |
+| Highlights: key figures, the active menu item, the busiest day | `--gold` | `#D5B779` |
+| Registered status | `--ok` | `#6BD99B` |
+| Full, cancelled, destructive actions | `--warning` | `#E0976B` |
+| Form fields | `--input-fill`, `--input-border` | `#0F1D1A`, `#7F918D`, with a 2px mint focus ring |
 
-Contrast is checked by a test that reads the real CSS tokens and composites every text and surface pair over the lightest backdrop shape (`frontend/src/test/contrast.test.js`). It covers text, muted text, accent, warning, button text, form borders and the focus ring on every glass level and on both opaque fills.
+Spacing uses 4, 8, 12, 16, 24, 32, 48 and 64. Radius is 8 for controls, 14 for panels and 18 for dialogs. Type is IBM Plex Sans for the interface and IBM Plex Mono for dates and numbers, self hosted, at 13, 15, 18, 24 and 32 px. Motion is limited to short colour and opacity changes, and respects `prefers-reduced-motion`.
+
+Status is always a text label plus a small marker whose **shape** also differs, never colour alone: a filled green square for registered, a hollow gold square for waitlisted, a clay label for full and cancelled, a hollow circle for ended.
+
+Contrast is checked by a test that reads the real CSS tokens and tests every text and surface pair, including hovered rows and form fields (`frontend/src/test/contrast.test.js`): body and secondary text, mint, gold, green and clay on every surface, button text, form borders and the focus ring.
+
+The first version of the interface used translucent glass panels over a blurred backdrop. It is kept in git as the tag `glass-design` (`git checkout glass-design`).
+
+| Screen | Screenshot |
+|---|---|
+| Sign in | ![](docs/screenshots/login.png) |
+| Dashboard (student) | ![](docs/screenshots/dashboard.png) |
+| Dashboard (faculty) | ![](docs/screenshots/dashboard-faculty.png) |
+| Explore events | ![](docs/screenshots/explore.png) |
+| Event detail | ![](docs/screenshots/event-detail.png) |
+| Reports | ![](docs/screenshots/reports.png) |
+| Phone | ![](docs/screenshots/explore-mobile.png) |
 
 ## Tests and checks
 
@@ -371,6 +367,7 @@ Start both servers first (see [Quick start](#quick-start)). Use the demo buttons
 - Re-registering after a cancellation goes to the back of the waitlist.
 - Only failed sign in attempts count toward the login limit, so a class signing in from one address is never locked out. The limiter is in memory, which is enough for one process.
 - Charts are plain HTML and CSS, not a library, so text stays real and readable on a phone. Each can be read as a table.
+- The interface uses solid surfaces and a mint and gold palette. The earlier translucent glass version is kept as the git tag `glass-design`. The CSS classes `glass-1`, `glass-2` and `glass-3` keep their names but now paint flat surfaces.
 - Email addresses are checked with a plain format rule, not the `email-validator` package, because that package rejects the `.test` domain used by the demo accounts.
 - `python -m app.seed` wipes users, events and registrations before recreating them. Dates are relative to the day it runs.
 - Fonts come from the `@fontsource` packages, so the build makes no external requests.
@@ -379,6 +376,5 @@ Start both servers first (see [Quick start](#quick-start)). Use the demo buttons
 
 ## Known gaps
 
-- The accessibility audit (`scripts/audit.mjs`) found four problems on its first run (no way to sort on phones, small touch targets in rows, tab panels that did not exist, a login page without a heading). They are fixed, and the audit now reports no horizontal scroll, no small touch targets and no axe violations across 12 screens, 3 widths and both glass modes.
-- Colour contrast over blurred glass cannot be measured by a script, so the audit skips it. The token test covers the same pairs on the lightest possible backdrop.
+- The accessibility audit (`scripts/audit.mjs`) found four problems on its first run (no way to sort on phones, small touch targets in rows, tab panels that did not exist, a login page without a heading). They are fixed, and the audit now reports no horizontal scroll, no small touch targets and no axe violations across 12 screens and 3 widths, including axe's own colour contrast check.
 - Events have no price, image or recurrence, and there is no email sending. The brief did not ask for them.
