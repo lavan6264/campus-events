@@ -1,0 +1,70 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-16);
+  background: rgba(6, 12, 11, 0.6);
+  animation: fade var(--shift) ease-out;
+}
+
+.panel {
+  width: min(520px, 100%);
+  max-height: calc(100vh - var(--sp-32));
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-dialog);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-16);
+  padding: var(--sp-24) var(--sp-24) var(--sp-8);
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-h);
+  height: var(--touch-h);
+  margin: calc(var(--sp-8) * -1);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-control);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--shift), background-color var(--shift);
+}
+
+.close:hover {
+  color: var(--text);
+  background: var(--row-hover);
+}
+
+.body {
+  padding: var(--sp-8) var(--sp-24) var(--sp-24);
+  overflow-y: auto;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--sp-12);
+  padding: var(--sp-16) var(--sp-24);
+  border-top: 1px solid var(--row-divider);
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,98 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  min-width: 0;
+}
+
+.label {
+  font-size: var(--fs-13);
+  font-weight: 500;
+  color: var(--text);
+}
+
+.required {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* Opaque dark fill and a clearly visible border, so a field never dissolves into the glass. */
+.control {
+  width: 100%;
+  min-height: var(--control-h);
+  padding: var(--sp-8) var(--sp-12);
+  background: var(--input-fill);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-control);
+  color: var(--text);
+  font-size: var(--fs-15);
+  transition: border-color var(--shift), background-color var(--shift);
+}
+
+.control::placeholder {
+  color: var(--text-muted);
+}
+
+.control:hover {
+  border-color: var(--text-muted);
+}
+
+.control:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+  border-color: var(--focus-ring);
+}
+
+.control[aria-invalid="true"] {
+  border-color: var(--warning);
+}
+
+.control:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 96px;
+  line-height: 1.5;
+}
+
+.selectWrap {
+  position: relative;
+}
+
+.select {
+  appearance: none;
+  padding-right: var(--sp-32);
+}
+
+.select option {
+  background: var(--opaque-1);
+  color: var(--text);
+}
+
+.chevron {
+  position: absolute;
+  right: var(--sp-12);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.help {
+  font-size: var(--fs-13);
+  color: var(--text-muted);
+}
+
+.error {
+  font-size: var(--fs-13);
+  color: var(--warning);
+}
+
+@media (max-width: 720px) {
+  .control {
+    min-height: var(--touch-h);
+  }
+}

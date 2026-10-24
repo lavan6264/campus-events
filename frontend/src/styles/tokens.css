@@ -1,0 +1,115 @@
+/* Design tokens. Every colour, glass level, space, radius and type size used in the UI lives here. */
+:root {
+  color-scheme: dark;
+
+  /* Backdrop: one hue family, small lightness steps, static */
+  --base: #0e1918;
+  --blob-1: #17302e;
+  --blob-2: #1b3b37;
+  --blob-3: #142826;
+
+  /* Colour */
+  --text: #eaf0ee;
+  --text-muted: #a3b3af;
+  --accent: #7ccdbb;
+  --accent-hover: #95dbcb;
+  --text-on-accent: #0e1918;
+  --warning: #e0976b;
+  --hairline: rgba(255, 255, 255, 0.14);
+  --hairline-strong: rgba(255, 255, 255, 0.22);
+  --row-hover: rgba(255, 255, 255, 0.05);
+  --row-divider: rgba(255, 255, 255, 0.1);
+
+  /* Form controls: opaque dark fill, clearly visible border */
+  --input-fill: rgba(8, 16, 15, 0.6);
+  --input-border: #7f918d;
+  --focus-ring: var(--accent);
+
+  /* Glass levels. Use only these. */
+  --glass-1-fill: rgba(255, 255, 255, 0.06); /* layout panels: sidebar, page sections */
+  --glass-1-blur: 20px;
+  --glass-1-saturate: 120%;
+  --glass-2-fill: rgba(18, 32, 30, 0.72); /* dense content: tables, forms, dialogs, detail */
+  --glass-2-blur: 24px;
+  --glass-2-saturate: 115%;
+  --glass-3-fill: rgba(22, 38, 36, 0.88); /* popovers, menus, toasts */
+  --glass-3-blur: 28px;
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+
+  /* Opaque replacements used when blur is unavailable or transparency is reduced */
+  --opaque-1: #16231f;
+  --opaque-3: #1b2b27;
+
+  /* What each glass class actually paints. The fallback blocks below override these. */
+  --g1-bg: var(--glass-1-fill);
+  --g1-filter: blur(var(--glass-1-blur)) saturate(var(--glass-1-saturate));
+  --g2-bg: var(--glass-2-fill);
+  --g2-filter: blur(var(--glass-2-blur)) saturate(var(--glass-2-saturate));
+  --g3-bg: var(--glass-3-fill);
+  --g3-filter: blur(var(--glass-3-blur));
+
+  /* Spacing (4px base) */
+  --sp-4: 4px;
+  --sp-8: 8px;
+  --sp-12: 12px;
+  --sp-16: 16px;
+  --sp-24: 24px;
+  --sp-32: 32px;
+  --sp-48: 48px;
+  --sp-64: 64px;
+
+  /* Radius */
+  --radius-control: 8px;
+  --radius-panel: 16px;
+  --radius-dialog: 20px;
+
+  /* Type */
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --fs-13: 13px;
+  --fs-15: 15px;
+  --fs-18: 18px;
+  --fs-24: 24px;
+  --fs-32: 32px;
+
+  /* Controls and motion */
+  --control-h: 40px;
+  --touch-h: 44px;
+  --shift: 150ms;
+
+  --sidebar-w: 248px;
+}
+
+/* No backdrop blur support, or the user asked for less transparency: opaque fills, same hairlines. */
+@supports not (backdrop-filter: blur(1px)) {
+  :root {
+    --g1-bg: var(--opaque-1);
+    --g1-filter: none;
+    --g2-bg: var(--opaque-1);
+    --g2-filter: none;
+    --g3-bg: var(--opaque-3);
+    --g3-filter: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --g1-bg: var(--opaque-1);
+    --g1-filter: none;
+    --g2-bg: var(--opaque-1);
+    --g2-filter: none;
+    --g3-bg: var(--opaque-3);
+    --g3-filter: none;
+  }
+}
+
+/* Forced fallback, used for the opaque screenshot: <html data-glass="off"> */
+:root[data-glass="off"] {
+  --g1-bg: var(--opaque-1);
+  --g1-filter: none;
+  --g2-bg: var(--opaque-1);
+  --g2-filter: none;
+  --g3-bg: var(--opaque-3);
+  --g3-filter: none;
+}

@@ -1,0 +1,82 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-8);
+  min-height: var(--control-h);
+  padding: 0 var(--sp-16);
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  font-size: var(--fs-15);
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--shift), border-color var(--shift), color var(--shift), opacity var(--shift);
+}
+
+.sm {
+  min-height: 32px;
+  padding: 0 var(--sp-12);
+  font-size: var(--fs-13);
+}
+
+.primary {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.primary:hover {
+  background: var(--accent-hover);
+  color: var(--text-on-accent);
+}
+
+.secondary {
+  background: var(--g1-bg);
+  -webkit-backdrop-filter: var(--g1-filter);
+  backdrop-filter: var(--g1-filter);
+  border-color: var(--hairline-strong);
+  color: var(--text);
+}
+
+.secondary:hover {
+  background: var(--row-hover);
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+.danger {
+  background: transparent;
+  border-color: var(--hairline-strong);
+  color: var(--warning);
+}
+
+.danger:hover {
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--text);
+}
+
+.ghost:hover {
+  background: var(--row-hover);
+  color: var(--text);
+}
+
+.button:disabled,
+.button[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+  .button {
+    min-height: var(--touch-h);
+  }
+  .sm {
+    min-height: var(--touch-h);
+  }
+}

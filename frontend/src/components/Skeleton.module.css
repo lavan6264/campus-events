@@ -1,0 +1,6 @@
+.bar {
+  display: block;
+  max-width: 100%;
+  background: var(--row-divider);
+  border-radius: 4px;
+}

@@ -1,0 +1,246 @@
+.app {
+  min-height: 100vh;
+}
+
+/* Left glass sidebar on desktop */
+.sidebar {
+  position: fixed;
+  top: var(--sp-16);
+  bottom: var(--sp-16);
+  left: var(--sp-16);
+  width: var(--sidebar-w);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-24);
+  padding: var(--sp-24) var(--sp-16) var(--sp-16);
+}
+
+.sidebarTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-8);
+  padding: 0 var(--sp-8);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-12);
+  min-width: 0;
+}
+
+.logo {
+  height: 32px;
+  width: auto;
+  max-width: 120px;
+}
+
+.brandName {
+  font-size: var(--fs-18);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  min-height: var(--control-h);
+  padding: 0 var(--sp-12);
+  border-radius: var(--radius-control);
+  color: var(--text-muted);
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color var(--shift), color var(--shift);
+}
+
+.link:hover {
+  color: var(--text);
+  background: var(--row-hover);
+}
+
+.active,
+.active:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+
+.account {
+  margin-top: auto;
+  padding: var(--sp-12) var(--sp-8) 0;
+  border-top: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.userName {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.userRole {
+  margin-bottom: var(--sp-8);
+}
+
+.logout {
+  width: 100%;
+}
+
+.closeMenu,
+.menuButton {
+  display: none;
+}
+
+/* Main column */
+.main {
+  margin-left: calc(var(--sidebar-w) + var(--sp-32));
+  padding: var(--sp-16) var(--sp-24) var(--sp-48) 0;
+  min-width: 0;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-16);
+  min-height: 56px;
+  margin-bottom: var(--sp-16);
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-24);
+  overflow-wrap: anywhere;
+}
+
+.search {
+  position: relative;
+  width: min(320px, 40%);
+}
+
+.search input {
+  width: 100%;
+  min-height: var(--control-h);
+  padding: 0 var(--sp-12) 0 var(--sp-32);
+  background: var(--input-fill);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-control);
+  color: var(--text);
+  transition: border-color var(--shift);
+}
+
+.search input:hover {
+  border-color: var(--text-muted);
+}
+
+.search input::placeholder {
+  color: var(--text-muted);
+}
+
+.searchIcon {
+  position: absolute;
+  left: var(--sp-12);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.content {
+  max-width: 1180px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-24);
+}
+
+.content:focus {
+  outline: none;
+}
+
+.scrim {
+  display: none;
+}
+
+/* Phone and small tablet: the sidebar becomes a slide-over opened by the Menu button */
+@media (max-width: 960px) {
+  .sidebar {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(300px, 86vw);
+    border-radius: 0 var(--radius-panel) var(--radius-panel) 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--shift), visibility var(--shift);
+    z-index: 40;
+  }
+
+  .open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: rgba(6, 12, 11, 0.6);
+  }
+
+  .closeMenu {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--touch-h);
+    height: var(--touch-h);
+    background: transparent;
+    border: 0;
+    border-radius: var(--radius-control);
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+
+  .menuButton {
+    display: inline-flex;
+  }
+
+  .main {
+    margin-left: 0;
+    padding: var(--sp-16);
+  }
+
+  .topbar {
+    flex-wrap: wrap;
+  }
+
+  .title {
+    order: 2;
+    flex-basis: 100%;
+    font-size: var(--fs-18);
+  }
+
+  .search {
+    order: 1;
+    flex: 1;
+    width: auto;
+    min-width: 0;
+  }
+
+  .search input {
+    min-height: var(--touch-h);
+  }
+
+  .link {
+    min-height: var(--touch-h);
+  }
+}

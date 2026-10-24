@@ -1,0 +1,29 @@
+/* The three glass levels. Never nest glass inside glass more than one level:
+   inside a panel use plain tonal rows and hairline dividers. */
+.glass-1,
+.glass-2,
+.glass-3 {
+  border: 1px solid var(--hairline);
+  box-shadow: var(--glass-highlight), var(--glass-shadow);
+}
+
+.glass-1 {
+  background: var(--g1-bg);
+  -webkit-backdrop-filter: var(--g1-filter);
+  backdrop-filter: var(--g1-filter);
+  border-radius: var(--radius-panel);
+}
+
+.glass-2 {
+  background: var(--g2-bg);
+  -webkit-backdrop-filter: var(--g2-filter);
+  backdrop-filter: var(--g2-filter);
+  border-radius: var(--radius-panel);
+}
+
+.glass-3 {
+  background: var(--g3-bg);
+  -webkit-backdrop-filter: var(--g3-filter);
+  backdrop-filter: var(--g3-filter);
+  border-radius: var(--radius-control);
+}

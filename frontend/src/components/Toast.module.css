@@ -1,0 +1,66 @@
+.region {
+  position: fixed;
+  right: var(--sp-16);
+  bottom: var(--sp-16);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  width: min(380px, calc(100vw - var(--sp-32)));
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-12);
+  padding: var(--sp-12) var(--sp-12) var(--sp-12) var(--sp-16);
+  font-size: var(--fs-15);
+  animation: fade var(--shift) ease-out;
+}
+
+.kind {
+  flex: none;
+  min-width: 52px;
+  font-size: var(--fs-13);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.errorKind {
+  color: var(--warning);
+}
+
+.message {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.dismiss {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: -4px 0;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-control);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--shift);
+}
+
+.dismiss:hover {
+  color: var(--text);
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
