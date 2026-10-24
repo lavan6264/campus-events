@@ -43,3 +43,31 @@ export const makeUser = (overrides = {}) => ({
   created_at: "2026-10-01T00:00:00Z",
   ...overrides,
 });
+
+let eventCounter = 100;
+export const makeEvent = (overrides = {}) => {
+  const id = overrides.id ?? ++eventCounter;
+  const start = new Date(Date.now() + 3 * 86400000);
+  return {
+    id,
+    title: `Event ${id}`,
+    description: "A description",
+    category: "Workshop",
+    venue: "Innovation Lab",
+    start_time: start.toISOString(),
+    end_time: new Date(start.getTime() + 2 * 3600000).toISOString(),
+    capacity: 20,
+    organizer_id: 50,
+    organizer_name: "Dr. Meenakshi Iyer",
+    status: "published",
+    created_at: "2026-10-01T00:00:00Z",
+    registered_count: 5,
+    waitlisted_count: 0,
+    seats_left: 15,
+    my_status: null,
+    my_waitlist_position: null,
+    clash_with_id: null,
+    clash_with_title: null,
+    ...overrides,
+  };
+};

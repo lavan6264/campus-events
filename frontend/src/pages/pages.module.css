@@ -206,3 +206,54 @@
     gap: var(--sp-4);
   }
 }
+
+/* Shared by MyEvents and Explore */
+.pageActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-12);
+}
+
+.rowActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-8);
+}
+
+/* AI search on Explore. Tonal, so glass never nests in glass. */
+.aiPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-12);
+  padding: var(--sp-16);
+}
+
+.aiRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--sp-12);
+}
+
+.aiRow > :first-child {
+  flex: 1 1 280px;
+}
+
+.aiNote {
+  font-size: var(--fs-13);
+  color: var(--text-muted);
+}
+
+.searchHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-12);
+}
+
+.searchToggle {
+  width: min(360px, 100%);
+}

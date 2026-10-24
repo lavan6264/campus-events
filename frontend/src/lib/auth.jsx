@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { api, session, setUnauthorizedHandler } from "./crud/api.js";
@@ -8,8 +8,11 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => (session.token ? session.user : null));
   const client = useQueryClient();
+  // After a deliberate sign out the login page should not remember where the last person was.
+  const deliberateSignOut = useRef(false);
 
   const signOut = useCallback(() => {
+    deliberateSignOut.current = true;
     session.clear();
     setUser(null);
     client.clear();
@@ -25,6 +28,7 @@ export function AuthProvider({ children }) {
   }, [client]);
 
   const accept = useCallback((result) => {
+    deliberateSignOut.current = false;
     session.set(result.access_token, result.user);
     setUser(result.user);
     return result.user;
@@ -37,6 +41,7 @@ export function AuthProvider({ children }) {
       login: async (email, password) => accept(await api("/auth/login", { method: "POST", body: { email, password }, auth: false })),
       register: async (body) => accept(await api("/auth/register", { method: "POST", body, auth: false })),
       logout: signOut,
+      deliberateSignOut,
     }),
     [user, accept, signOut],
   );
@@ -52,9 +57,12 @@ export function useAuth() {
 
 /** Sends signed out visitors to the login page, and signed in people without the right role to the 403 page. */
 export function RequireAuth({ roles, children }) {
-  const { user } = useAuth();
+  const { user, deliberateSignOut } = useAuth();
   const location = useLocation();
-  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
+  if (!user) {
+    const state = deliberateSignOut.current ? undefined : { from: location.pathname + location.search };
+    return <Navigate to="/login" replace state={state} />;
+  }
   if (roles && !roles.includes(user.role)) return <Navigate to="/forbidden" replace />;
   return children;
 }

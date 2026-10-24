@@ -1,0 +1,156 @@
+/* Event detail, event form, participants */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--sp-24);
+  align-items: start;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-24);
+  min-width: 0;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-16);
+  padding: var(--sp-24);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-16);
+}
+
+.description {
+  max-width: 68ch;
+  white-space: pre-line;
+}
+
+.details {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.detailRow {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: var(--sp-16);
+  padding: var(--sp-12) 0;
+  border-top: 1px solid var(--row-divider);
+}
+
+.detailRow dd {
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-12);
+}
+
+.side {
+  position: sticky;
+  top: var(--sp-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-16);
+  padding: var(--sp-24);
+}
+
+.sideBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-12);
+}
+
+.seats {
+  font-size: var(--fs-24);
+}
+
+.notice {
+  padding: var(--sp-12);
+  background: var(--input-fill);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-control);
+  font-size: var(--fs-13);
+}
+
+/* AI draft box inside the event form: tonal, not glass, so glass never nests in glass */
+.draft {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-12);
+  padding: var(--sp-16);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-control);
+}
+
+.draftRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-12);
+}
+
+.formPanel {
+  max-width: 820px;
+  padding: var(--sp-24);
+}
+
+.sourceNote {
+  font-size: var(--fs-13);
+  color: var(--text-muted);
+}
+
+/* Participants */
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-12);
+}
+
+.toolbarActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-12);
+}
+
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .side {
+    position: static;
+    order: -1;
+  }
+}
+
+@media (max-width: 520px) {
+  .detailRow {
+    grid-template-columns: 1fr;
+    gap: var(--sp-4);
+  }
+
+  .panel,
+  .side,
+  .formPanel {
+    padding: var(--sp-16);
+  }
+}

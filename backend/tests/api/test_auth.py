@@ -128,3 +128,12 @@ def test_role_guard_dependency(app, client, make_user, auth_headers):
 def test_auth_routes_documented(client):
     paths = client.get("/openapi.json").json()["paths"]
     assert {"/api/auth/register", "/api/auth/login", "/api/auth/me"} <= set(paths)
+
+
+def test_successful_sign_ins_do_not_count_toward_the_limit(client, make_user):
+    make_user(email="ravi@campus-demo.test")
+    codes = [
+        client.post("/api/auth/login", json={"email": "ravi@campus-demo.test", "password": "password123"}).status_code
+        for _ in range(15)
+    ]
+    assert codes == [200] * 15

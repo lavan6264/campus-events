@@ -63,7 +63,20 @@ export function createResource(name, { singular = name.replace(/s$/, ""), path =
 
   const useCreate = ({ message = `${label} created` } = {}) => useWrite(calls.create, message);
   const useUpdate = ({ message = `${label} saved` } = {}) => useWrite(({ id, ...body }) => calls.update(id, body), message);
-  const useRemove = ({ message = `${label} deleted` } = {}) => useWrite(calls.remove, message);
+  function useRemove({ message = `${label} deleted` } = {}) {
+    const client = useQueryClient();
+    const toast = useToast();
+    return useMutation({
+      mutationFn: calls.remove,
+      onSuccess: (_, id) => {
+        // Drop the deleted item first, so nothing tries to refetch it and gets a 404.
+        client.removeQueries({ queryKey: keys.one(id) });
+        client.invalidateQueries({ queryKey: keys.all });
+        if (message) toast.success(message);
+      },
+      onError: (error) => toast.error(error?.message || "Something went wrong. Try again."),
+    });
+  }
 
   return { name, path, keys, ...calls, useList, useOne, useCreate, useUpdate, useRemove };
 }

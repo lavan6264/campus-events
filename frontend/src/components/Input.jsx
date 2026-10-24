@@ -3,10 +3,10 @@ import styles from "./Input.module.css";
 import { ChevronDownIcon } from "./icons.jsx";
 
 /** Visible label above, optional help text, and an inline error tied to the control with aria-describedby. */
-export function Field({ id, label, help, error, required, children, className = "" }) {
+export function Field({ id, label, help, error, required, children, className = "", hideLabel = false }) {
   return (
     <div className={`${styles.field} ${className}`}>
-      <label htmlFor={id} className={styles.label}>
+      <label htmlFor={id} className={`${styles.label} ${hideLabel ? "visually-hidden" : ""}`}>
         {label}
         {required ? <span className={styles.required}> (required)</span> : null}
       </label>
@@ -31,11 +31,11 @@ function describedBy(id, help, error) {
   return undefined;
 }
 
-export const Input = forwardRef(function Input({ label, help, error, required, className, id, ...props }, ref) {
+export const Input = forwardRef(function Input({ label, help, error, required, className, id, hideLabel, ...props }, ref) {
   const auto = useId();
   const fieldId = id || auto;
   return (
-    <Field id={fieldId} label={label} help={help} error={error} required={required} className={className}>
+    <Field id={fieldId} label={label} help={help} error={error} required={required} className={className} hideLabel={hideLabel}>
       <input
         ref={ref}
         id={fieldId}
@@ -69,13 +69,13 @@ export const Textarea = forwardRef(function Textarea({ label, help, error, requi
 });
 
 export const Select = forwardRef(function Select(
-  { label, help, error, required, className, id, options = [], placeholder, children, ...props },
+  { label, help, error, required, className, id, hideLabel, options = [], placeholder, children, ...props },
   ref,
 ) {
   const auto = useId();
   const fieldId = id || auto;
   return (
-    <Field id={fieldId} label={label} help={help} error={error} required={required} className={className}>
+    <Field id={fieldId} label={label} help={help} error={error} required={required} className={className} hideLabel={hideLabel}>
       <div className={styles.selectWrap}>
         <select
           ref={ref}

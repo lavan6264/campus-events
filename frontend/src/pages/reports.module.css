@@ -1,0 +1,29 @@
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--sp-24);
+  align-items: start;
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  padding: var(--sp-16);
+}
+
+.summaryText {
+  max-width: 76ch;
+}
+
+.users {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-16);
+}
+
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

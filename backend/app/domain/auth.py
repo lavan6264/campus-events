@@ -64,11 +64,12 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
 )
 def login(payload: LoginRequest, request: Request, db: Session = Depends(get_db)):
     client = request.client.host if request.client else "unknown"
-    if not login_limiter.allow(client):
+    if login_limiter.blocked(client):
         raise HTTPException(429, "Too many sign in attempts. Try again in a minute", headers={"Retry-After": "60"})
     user = db.scalars(select(User).where(User.email == payload.email)).first()
     valid = verify_password(payload.password, user.password_hash if user else _DUMMY_HASH)
     if user is None or not valid:
+        login_limiter.hit(client)
         raise Unauthorized("Incorrect email or password")
     return TokenResponse(access_token=create_access_token(user.id), user=UserRead.model_validate(user))
 

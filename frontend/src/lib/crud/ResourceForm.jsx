@@ -184,6 +184,7 @@ export default function ResourceForm({
               min={f.min}
               max={f.max}
               autoComplete={f.autoComplete}
+              list={f.list}
               inputMode={f.type === "number" ? "numeric" : undefined}
               {...common}
             />

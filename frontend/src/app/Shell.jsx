@@ -18,7 +18,12 @@ export function usePageTitle(title) {
 
 const NAV = [
   { to: "/", label: "Dashboard", end: true },
-  { to: "/events", label: "Explore events", match: (p) => p === "/events" || /^\/events\/\d+/.test(p) },
+  { to: "/events", label: "Explore events", match: (p) => p === "/events" || /^\/events\/\d+$/.test(p) },
+  {
+    to: "/my-events", label: "My events", roles: ["faculty", "admin"],
+    match: (p) => p === "/my-events" || p === "/events/new" || /^\/events\/\d+\/(edit|participants)$/.test(p),
+  },
+  { to: "/reports", label: "Reports", roles: ["admin"] },
 ];
 
 export function Brand() {
@@ -66,7 +71,7 @@ export default function Shell() {
     return () => document.removeEventListener("keydown", onKey);
   }, [menuOpen]);
 
-  const items = useMemo(() => NAV, []);
+  const items = useMemo(() => NAV.filter((item) => !item.roles || item.roles.includes(user.role)), [user.role]);
 
   const onSearch = (event) => {
     event.preventDefault();

@@ -4,7 +4,7 @@ import EventRow, { Availability } from "../components/EventRow.jsx";
 import Skeleton from "../components/Skeleton.jsx";
 import { useAuth } from "../lib/auth.jsx";
 import { formatDayMonth, formatTime } from "../lib/format.js";
-import { events, myRegistrations } from "../resources/index.js";
+import { events, myEvents, myRegistrations } from "../resources/index.js";
 import styles from "./pages.module.css";
 
 function ListSkeleton({ rows = 4 }) {
@@ -46,6 +46,8 @@ export default function Dashboard() {
   const { user } = useAuth();
   const upcoming = events.useList({ upcoming: "true", status: "published", sort: "start_time", limit: 100 });
   const mine = myRegistrations.useList({ upcoming: "true", limit: 6 });
+  const organizer = user.role === "faculty" || user.role === "admin";
+  const organised = myEvents.useList({ upcoming: "true", sort: "start_time", limit: 5 }, { enabled: organizer });
 
   const items = upcoming.data?.items || [];
   const seats = items.reduce((sum, e) => sum + e.capacity, 0);
@@ -54,7 +56,15 @@ export default function Dashboard() {
 
   return (
     <>
-      <p className={`${styles.lead} muted`}>Welcome back, {user.name.split(" ")[0]}. Here is what is coming up on campus.</p>
+      <p className={`${styles.lead} muted`}>
+        Welcome back, {user.name.replace(/^(dr|prof)\.?\s+/i, "").split(" ")[0]}. Here is what is coming up on campus.
+        {user.role === "admin" ? (
+          <>
+            {" "}
+            <Link to="/reports">Open the reports</Link>.
+          </>
+        ) : null}
+      </p>
 
       <section className={`${styles.strip} glass-1`} aria-label="Overview">
         <Figure value={loading ? "..." : upcoming.data?.total ?? "-"} label="Upcoming events" />
@@ -127,6 +137,40 @@ export default function Dashboard() {
           ) : null}
         </section>
       </div>
+
+      {organizer ? (
+        <section className={`${styles.panel} glass-2`} aria-labelledby="organised-heading">
+          <div className={styles.panelHeader}>
+            <h2 id="organised-heading">My events</h2>
+            <span className={styles.rowActions}>
+              <Button size="sm" variant="primary" to="/events/new">Create event</Button>
+              <Link to="/my-events">See all</Link>
+            </span>
+          </div>
+          {organised.isLoading ? <ListSkeleton rows={2} /> : null}
+          {organised.error && !organised.data ? <Failure error={organised.error} onRetry={organised.refetch} /> : null}
+          {organised.data && organised.data.items.length === 0 ? (
+            <div className={styles.panelBody}>
+              <p>You have no upcoming events.</p>
+              <p className="muted">Create one and students can register right away.</p>
+            </div>
+          ) : null}
+          {organised.data?.items.length ? (
+            <ul className={styles.list}>
+              {organised.data.items.map((event) => (
+                <EventRow key={event.id} event={event}>
+                  <p className="small">
+                    <span className="mono">{event.registered_count}</span> of <span className="mono">{event.capacity}</span> seats taken
+                    {event.waitlisted_count ? <>, <span className="mono">{event.waitlisted_count}</span> waiting</> : null}
+                    {". "}
+                    <Link to={`/events/${event.id}/participants`}>Manage participants</Link>
+                  </p>
+                </EventRow>
+              ))}
+            </ul>
+          ) : null}
+        </section>
+      ) : null}
     </>
   );
 }
