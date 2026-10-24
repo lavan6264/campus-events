@@ -50,3 +50,47 @@ def fast_password_hashing():
     bcrypt.gensalt = lambda rounds=4, prefix=b"2b": original(rounds=4, prefix=prefix)
     yield
     bcrypt.gensalt = original
+
+
+@pytest.fixture(autouse=True)
+def no_real_ai_calls(monkeypatch):
+    """Tests never reach the real Gemini API, whatever is in .env. Use `fake_ai` to script replies."""
+    monkeypatch.setattr("app.ai.client.get_client", lambda: None)
+
+
+class FakeAI:
+    """Stands in for the google-genai client. Script it with `reply(...)` or `fail(...)`."""
+
+    def __init__(self):
+        self.calls = []
+        self._reply = None
+        self._error = None
+        self.models = self
+
+    def reply(self, payload):
+        import json
+
+        self._reply = payload if isinstance(payload, str) else json.dumps(payload)
+        self._error = None
+
+    def fail(self, error=None):
+        self._error = error or RuntimeError("model unavailable")
+
+    def generate_content(self, model, contents, config):
+        from types import SimpleNamespace
+
+        self.calls.append({"model": model, "contents": contents, "config": config})
+        if self._error:
+            raise self._error
+        return SimpleNamespace(text=self._reply)
+
+    @property
+    def prompt(self):
+        return self.calls[-1]["contents"]
+
+
+@pytest.fixture()
+def fake_ai(monkeypatch):
+    fake = FakeAI()
+    monkeypatch.setattr("app.ai.client.get_client", lambda: fake)
+    return fake

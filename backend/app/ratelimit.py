@@ -29,3 +29,6 @@ class RateLimiter:
 
 
 login_limiter = RateLimiter(attempts=10, window_seconds=60)
+
+# AI calls cost money and time, so each signed in user gets a modest allowance.
+ai_limiter = RateLimiter(attempts=30, window_seconds=60)

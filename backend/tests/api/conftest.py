@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 
 from app.db import get_db
 from app.main import create_app
-from app.ratelimit import login_limiter
+from app.ratelimit import ai_limiter, login_limiter
 from app.resources.users.models import User
 from app.security import create_access_token, hash_password
 
@@ -13,6 +13,7 @@ def app(override_db):
     application = create_app()
     application.dependency_overrides[get_db] = override_db
     login_limiter.reset()
+    ai_limiter.reset()
     return application
 
 

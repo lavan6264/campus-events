@@ -51,8 +51,8 @@ def test_stats_numbers(client, people, auth_headers, make_event, make_registrati
     assert cats["Cultural"]["events"] == 0  # cancelled events are not counted
     assert cats["Club Meet"]["registrations"] == 0
 
-    assert [e["title"] for e in body["top_events"]] == ["Workshop A", "Old sports", "Seminar B"] or \
-        [e["title"] for e in body["top_events"]] == ["Workshop A", "Seminar B", "Old sports"]
+    # Ties on registrations are broken by the earlier start time.
+    assert [e["title"] for e in body["top_events"]] == ["Workshop A", "Old sports", "Seminar B"]
     assert body["top_events"][0]["registered"] == 4 and body["top_events"][0]["waitlisted"] == 1
     assert [e["title"] for e in body["near_capacity"]] == ["Workshop A"]
 
