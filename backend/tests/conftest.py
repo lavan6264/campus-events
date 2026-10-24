@@ -39,3 +39,14 @@ def override_db(session_factory):
                 raise
 
     return _get_db
+
+
+@pytest.fixture(autouse=True, scope="session")
+def fast_password_hashing():
+    """Production uses bcrypt's default cost. Tests hash many users, so use the minimum."""
+    import bcrypt
+
+    original = bcrypt.gensalt
+    bcrypt.gensalt = lambda rounds=4, prefix=b"2b": original(rounds=4, prefix=prefix)
+    yield
+    bcrypt.gensalt = original

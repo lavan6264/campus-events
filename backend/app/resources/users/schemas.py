@@ -30,3 +30,23 @@ class UserRead(BaseModel):
     role: Role
     department: str | None
     created_at: datetime
+
+
+class UserCreate(BaseModel):
+    """Admin creates an account, including any role."""
+
+    name: str = Field(min_length=1, max_length=120)
+    email: Email
+    password: str = Field(min_length=8, max_length=128)
+    role: Role = "student"
+    department: str | None = Field(default=None, max_length=120)
+
+
+class UserUpdate(BaseModel):
+    """Profile fields only. There is deliberately no `role` here: roles change through
+    PATCH /admin/users/{id}/role, so a role sent in this body is ignored."""
+
+    name: str | None = Field(default=None, min_length=1, max_length=120)
+    email: Email | None = None
+    password: str | None = Field(default=None, min_length=8, max_length=128)
+    department: str | None = Field(default=None, max_length=120)
