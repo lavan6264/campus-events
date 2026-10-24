@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
 from app.core.crud import install_error_handlers
-from app.domain import auth, event_registration, me
+from app.domain import admin, auth, event_registration, me
 from app.resources.events import router as events
 from app.resources.registrations import router as registrations
 from app.resources.users import router as users
@@ -33,6 +33,7 @@ def create_app() -> FastAPI:
     api.include_router(users.router)
     api.include_router(event_registration.router)
     api.include_router(me.router)
+    api.include_router(admin.router)
     api.include_router(events.router)
     api.include_router(registrations.router)
 
