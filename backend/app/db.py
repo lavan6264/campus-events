@@ -15,11 +15,14 @@ SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
 
 def get_db() -> Iterator[Session]:
-    """Request scoped session. Commits once at the end of a successful request."""
+    """Request scoped session.
+
+    It never commits on its own. Routers commit explicitly once a unit of work is
+    complete, so a failed request always rolls back.
+    """
     with SessionLocal() as session:
         try:
             yield session
-            session.commit()
         except Exception:
             session.rollback()
             raise
