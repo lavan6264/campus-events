@@ -1,35 +1,43 @@
 /* Design tokens. Every colour, surface, space, radius and type size used in the UI lives here.
-   Solid dark green surfaces, mint for actions, champagne gold for the few things that matter most. */
+   Graphite surfaces with an orange accent, in a dark theme (default) and a light theme.
+   The theme is set by data-theme on <html>: see src/lib/theme.js. */
 :root {
   color-scheme: dark;
 
   /* Surfaces, darkest to lightest */
-  --base: #0b1513; /* page background */
-  --sidebar: #142521; /* sidebar, filter bars, the figures strip */
-  --panel: #172925; /* cards and panels: tables, forms, event detail, lists */
-  --panel-raised: #1d332e; /* toasts, hovered rows, selected tab */
+  --base: #101114; /* page background */
+  --sidebar: #15161a; /* sidebar, filter bars, the figures strip */
+  --panel: #1b1b20; /* cards and panels: tables, forms, lists, event detail */
+  --panel-raised: #25262c; /* toasts, selected tab, secondary buttons */
 
-  /* Colour */
-  --text: #e7f0ec;
-  --text-muted: #a2b3ac;
-  --accent: #70d6b5; /* mint: links, buttons, focus */
-  --accent-hover: #8fe3c8;
-  --text-on-accent: #0b1513;
-  --gold: #d5b779; /* champagne: important highlights only */
-  --ok: #6bd99b; /* registered */
-  --warning: #e0976b; /* full, cancelled, destructive. Always paired with a text label. */
-  --hairline: #30443e; /* borders and dividers */
-  --hairline-strong: #46615a;
+  /* Text and borders */
+  --text: #f4f4f5;
+  --text-muted: #a1a1aa;
+  --hairline: #303139;
+  --hairline-strong: #464750;
   --row-hover: rgba(255, 255, 255, 0.04);
-  --row-divider: #263833;
+  --row-divider: #26272d;
 
-  /* Form controls: darker than the panel, with a clearly visible border */
-  --input-fill: #0f1d1a;
-  --input-border: #7f918d;
+  /* Accent: links, buttons, focus ring */
+  --accent: #d97736;
+  --accent-hover: #e9a06f;
+  --accent-pressed: #b85d26;
+  --accent-subtle: #38251b;
+  --text-on-accent: #101114;
+  --text-on-pressed: #ffffff;
+  --highlight: #e9a06f; /* the few things that matter most: key figures, the active menu item */
+
+  /* Status. Always paired with a text label and a marker of a different shape. */
+  --ok: #6bd99b; /* registered */
+  --warning: #f28b82; /* full, cancelled, destructive */
+
+  /* Form controls: a different fill from the panel, and a clearly visible border */
+  --input-fill: #131418;
+  --input-border: #8a8b96;
   --focus-ring: var(--accent);
 
   /* Surface levels. The class names (glass-1, glass-2, glass-3) are kept from the first design,
-     but they now paint solid fills. */
+     but they paint solid fills. */
   --g1-bg: var(--sidebar);
   --g1-filter: none;
   --g2-bg: var(--panel);
@@ -38,6 +46,8 @@
   --g3-filter: none;
   --opaque-1: var(--panel);
   --opaque-3: var(--panel-raised);
+  --overlay: rgba(0, 0, 0, 0.6);
+  --shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
 
   /* Spacing (4px base) */
   --sp-4: 4px;
@@ -69,4 +79,37 @@
   --shift: 150ms;
 
   --sidebar-w: 248px;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --base: #f7f7fa;
+  --sidebar: #ffffff;
+  --panel: #ffffff;
+  --panel-raised: #eeeef3;
+
+  --text: #18181b;
+  --text-muted: #52525b;
+  --hairline: #e1e1e8;
+  --hairline-strong: #c4c4cf;
+  --row-hover: rgba(24, 24, 27, 0.04);
+  --row-divider: #ececf1;
+
+  --accent: #a94716;
+  --accent-hover: #87380f;
+  --accent-pressed: #702d0c;
+  --accent-subtle: #fbe8dc;
+  --text-on-accent: #ffffff;
+  --text-on-pressed: #ffffff;
+  --highlight: #87380f;
+
+  --ok: #1d7a49;
+  --warning: #b42318;
+
+  --input-fill: #f7f7fa;
+  --input-border: #6b6b78;
+
+  --overlay: rgba(24, 24, 27, 0.45);
+  --shadow: 0 6px 20px rgba(24, 24, 27, 0.14);
 }

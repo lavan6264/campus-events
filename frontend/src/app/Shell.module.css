@@ -68,7 +68,7 @@
 
 .active,
 .active:hover {
-  color: var(--gold);
+  color: var(--highlight);
   background: var(--panel-raised);
   box-shadow: inset 0 0 0 1px var(--hairline);
 }
@@ -194,7 +194,7 @@
     position: fixed;
     inset: 0;
     z-index: 30;
-    background: rgba(6, 12, 11, 0.6);
+    background: var(--overlay);
   }
 
   .closeMenu {

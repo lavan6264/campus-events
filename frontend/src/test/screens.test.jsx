@@ -320,3 +320,29 @@ describe("role based navigation", () => {
     expect(await nav("admin")).toEqual(["Dashboard", "Explore events", "My events", "Reports"]);
   });
 });
+
+
+describe("theme", () => {
+  it("switches between dark and light, remembers the choice, and says what the button will do", async () => {
+    signIn();
+    installFakeApi({ "GET /events/": () => ({ body: page([]) }), "GET /me/registrations": () => ({ body: page([]) }) });
+    const ui = userEvent.setup();
+    renderApp("/");
+
+    await ui.click(await screen.findByRole("button", { name: "Switch to light theme" }));
+    expect(document.documentElement.dataset.theme).toBe("light");
+    expect(localStorage.getItem("ce.theme")).toBe("light");
+
+    await ui.click(screen.getByRole("button", { name: "Switch to dark theme" }));
+    expect(document.documentElement.dataset.theme).toBe("dark");
+    expect(localStorage.getItem("ce.theme")).toBe("dark");
+  });
+
+  it("is also available on the sign in page", async () => {
+    installFakeApi({});
+    const ui = userEvent.setup();
+    renderApp("/login");
+    await ui.click(await screen.findByRole("button", { name: "Switch to light theme" }));
+    expect(document.documentElement.dataset.theme).toBe("light");
+  });
+});

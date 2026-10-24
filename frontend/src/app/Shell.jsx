@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { NavLink, Outlet, useLocation, useMatches, useNavigate } from "react-router-dom";
 import Button from "../components/Button.jsx";
 import { CloseIcon, MenuIcon, SearchIcon } from "../components/icons.jsx";
+import ThemeToggle from "../components/ThemeToggle.jsx";
 import { useAuth } from "../lib/auth.jsx";
 import { INSTITUTION_LOGO, INSTITUTION_NAME } from "../lib/config.js";
 import styles from "./Shell.module.css";
@@ -115,6 +116,7 @@ export default function Shell() {
               {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
               {user.department ? `, ${user.department}` : ""}
             </p>
+            <ThemeToggle className={styles.logout} />
             <Button className={styles.logout} onClick={logout}>
               Sign out
             </Button>

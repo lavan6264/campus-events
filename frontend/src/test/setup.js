@@ -4,6 +4,7 @@ import { cleanup } from "@testing-library/react";
 
 afterEach(() => {
   cleanup();
+  delete document.documentElement.dataset.theme;
   try {
     localStorage.clear();
   } catch {

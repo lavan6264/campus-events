@@ -22,5 +22,5 @@
   background: var(--g3-bg);
   border-color: var(--hairline-strong);
   border-radius: var(--radius-control);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow);
 }

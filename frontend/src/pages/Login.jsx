@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import Button from "../components/Button.jsx";
 import Tabs from "../components/Tabs.jsx";
+import ThemeToggle from "../components/ThemeToggle.jsx";
 import { Brand } from "../app/Shell.jsx";
 import { useAuth } from "../lib/auth.jsx";
 import { DEMO_LOGINS, DEPARTMENTS, INSTITUTION_NAME } from "../lib/config.js";
@@ -104,6 +105,7 @@ export default function Login() {
           )}
         </div>
       </section>
+      <ThemeToggle />
     </main>
   );
 }

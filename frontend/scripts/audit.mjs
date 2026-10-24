@@ -47,9 +47,11 @@ if (!browser) throw new Error("No Edge or Chrome found.");
 
 const problems = [];
 let checked = 0;
-for (const vp of viewports) {
+for (const theme of ["dark", "light"]) {
+ for (const vp of viewports) {
   for (const screen of screens) {
     const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, reducedMotion: "reduce" });
+    await context.addInitScript((t) => localStorage.setItem("ce.theme", t), theme);
     if (screen.as) {
       const s = sessions[screen.as];
       await context.addInitScript(([t, u]) => { localStorage.setItem("ce.token", t); localStorage.setItem("ce.user", u); }, [s.access_token, JSON.stringify(s.user)]);
@@ -58,7 +60,7 @@ for (const vp of viewports) {
     await page.goto(APP + screen.path, { waitUntil: "networkidle" });
     await page.waitForTimeout(500);
     for (const mode of ["default"]) {
-      const where = `${screen.name} @ ${vp.label}`;
+      const where = `${screen.name} @ ${vp.label}, ${theme} theme`;
       checked += 1;
 
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
@@ -102,6 +104,7 @@ for (const vp of viewports) {
     }
     await context.close();
   }
+ }
 }
 await browser.close();
 

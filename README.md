@@ -290,39 +290,45 @@ Notes from building it:
 
 ## Design system
 
-A calm, dark green interface built from solid surfaces that step up in lightness, so each layer reads clearly: page, sidebar, panels, raised items. Mint is for actions and links. Champagne gold is kept for the few things that matter most. All values live in `frontend/src/styles/tokens.css`, and components use only those tokens.
+Graphite surfaces with an orange accent, in a **dark theme** (the default) and a **light theme**. The theme follows the system setting until someone picks one with the **Switch to light theme** button (in the sidebar and on the sign in page), and the choice is remembered. All values live in `frontend/src/styles/tokens.css`, and components use only those tokens.
 
-| Role | Token | Value |
-|---|---|---|
-| Page background | `--base` | `#0B1513` |
-| Sidebar, filter bars, the figures strip | `--sidebar` | `#142521` |
-| Cards and panels (tables, forms, lists, event detail) | `--panel` | `#172925` |
-| Raised items (toasts, selected tab, secondary buttons) | `--panel-raised` | `#1D332E` |
-| Borders and dividers | `--hairline` | `#30443E` |
-| Main text, secondary text | `--text`, `--text-muted` | `#E7F0EC`, `#A2B3AC` |
-| Links, buttons, focus ring | `--accent` | `#70D6B5` (hover `#8FE3C8`) |
-| Highlights: key figures, the active menu item, the busiest day | `--gold` | `#D5B779` |
-| Registered status | `--ok` | `#6BD99B` |
-| Full, cancelled, destructive actions | `--warning` | `#E0976B` |
-| Form fields | `--input-fill`, `--input-border` | `#0F1D1A`, `#7F918D`, with a 2px mint focus ring |
+| Role | Token | Dark | Light |
+|---|---|---|---|
+| Page background | `--base` | `#101114` | `#F7F7FA` |
+| Sidebar, filter bars, the figures strip | `--sidebar` | `#15161A` | `#FFFFFF` |
+| Cards and panels (tables, forms, lists, event detail) | `--panel` | `#1B1B20` | `#FFFFFF` |
+| Raised items (toasts, selected tab, secondary buttons) | `--panel-raised` | `#25262C` | `#EEEEF3` |
+| Primary text | `--text` | `#F4F4F5` | `#18181B` |
+| Secondary text | `--text-muted` | `#A1A1AA` | `#52525B` |
+| Borders and dividers | `--hairline` | `#303139` | `#E1E1E8` |
+| Primary accent: links, buttons, focus ring | `--accent` | `#D97736` | `#A94716` |
+| Accent hover | `--accent-hover` | `#E9A06F` | `#87380F` |
+| Accent pressed | `--accent-pressed` | `#B85D26` | `#702D0C` |
+| Subtle accent background (active menu item, chart tracks) | `--accent-subtle` | `#38251B` | `#FBE8DC` |
+| Highlight: key figures, the active menu item, the busiest day | `--highlight` | `#E9A06F` | `#87380F` |
+| Registered | `--ok` | `#6BD99B` | `#1D7A49` |
+| Full, cancelled, destructive | `--warning` | `#F28B82` | `#B42318` |
+| Form fields | `--input-fill`, `--input-border` | `#131418`, `#8A8B96` | `#F7F7FA`, `#6B6B78` |
+
+The values for background, cards, text, borders and the four accent colours are the specified palette. The rest (secondary text, sidebar, raised surfaces, status colours, field colours) were chosen to fit it and are held to the same contrast rules. The status colours are deliberately red and green, so they never look like the orange accent.
 
 Spacing uses 4, 8, 12, 16, 24, 32, 48 and 64. Radius is 8 for controls, 14 for panels and 18 for dialogs. Type is IBM Plex Sans for the interface and IBM Plex Mono for dates and numbers, self hosted, at 13, 15, 18, 24 and 32 px. Motion is limited to short colour and opacity changes, and respects `prefers-reduced-motion`.
 
-Status is always a text label plus a small marker whose **shape** also differs, never colour alone: a filled green square for registered, a hollow gold square for waitlisted, a clay label for full and cancelled, a hollow circle for ended.
+Status is always a text label plus a small marker whose **shape** also differs, never colour alone: a filled green square for registered, a hollow orange square for waitlisted, a red label for full and cancelled, a hollow circle for ended.
 
-Contrast is checked by a test that reads the real CSS tokens and tests every text and surface pair, including hovered rows and form fields (`frontend/src/test/contrast.test.js`): body and secondary text, mint, gold, green and clay on every surface, button text, form borders and the focus ring.
+Contrast is checked by a test that reads the real CSS tokens and tests every text and surface pair in **both themes**, including hovered rows, form fields and the button pressed state (`frontend/src/test/contrast.test.js`). The audit script also runs axe's own colour contrast check on every screen in both themes.
 
-The first version of the interface used translucent glass panels over a blurred backdrop. It is kept in git as the tag `glass-design` (`git checkout glass-design`).
+Earlier versions: the first design used translucent glass panels over a blurred backdrop (git tag `glass-design`), and the second used dark green solid surfaces with mint and gold. The CSS classes `glass-1`, `glass-2` and `glass-3` kept their names but now paint flat surfaces.
 
-| Screen | Screenshot |
-|---|---|
-| Sign in | ![](docs/screenshots/login.png) |
-| Dashboard (student) | ![](docs/screenshots/dashboard.png) |
-| Dashboard (faculty) | ![](docs/screenshots/dashboard-faculty.png) |
-| Explore events | ![](docs/screenshots/explore.png) |
-| Event detail | ![](docs/screenshots/event-detail.png) |
-| Reports | ![](docs/screenshots/reports.png) |
-| Phone | ![](docs/screenshots/explore-mobile.png) |
+| Screen | Dark | Light |
+|---|---|---|
+| Sign in | ![](docs/screenshots/login.png) | ![](docs/screenshots/login-light.png) |
+| Dashboard (student) | ![](docs/screenshots/dashboard.png) | ![](docs/screenshots/dashboard-light.png) |
+| Dashboard (faculty) | ![](docs/screenshots/dashboard-faculty.png) | ![](docs/screenshots/dashboard-faculty-light.png) |
+| Explore events | ![](docs/screenshots/explore.png) | ![](docs/screenshots/explore-light.png) |
+| Event detail | ![](docs/screenshots/event-detail.png) | ![](docs/screenshots/event-detail-light.png) |
+| Reports | ![](docs/screenshots/reports.png) | ![](docs/screenshots/reports-light.png) |
+| Phone | ![](docs/screenshots/explore-mobile.png) | |
 
 ## Tests and checks
 
@@ -367,7 +373,8 @@ Start both servers first (see [Quick start](#quick-start)). Use the demo buttons
 - Re-registering after a cancellation goes to the back of the waitlist.
 - Only failed sign in attempts count toward the login limit, so a class signing in from one address is never locked out. The limiter is in memory, which is enough for one process.
 - Charts are plain HTML and CSS, not a library, so text stays real and readable on a phone. Each can be read as a table.
-- The interface uses solid surfaces and a mint and gold palette. The earlier translucent glass version is kept as the git tag `glass-design`. The CSS classes `glass-1`, `glass-2` and `glass-3` keep their names but now paint flat surfaces.
+- The interface uses solid graphite surfaces with an orange accent, in a dark and a light theme. The earlier translucent glass version is kept as the git tag `glass-design`. The CSS classes `glass-1`, `glass-2` and `glass-3` keep their names but now paint flat surfaces.
+- Light mode uses pure white for cards, as specified in the palette.
 - Email addresses are checked with a plain format rule, not the `email-validator` package, because that package rejects the `.test` domain used by the demo accounts.
 - `python -m app.seed` wipes users, events and registrations before recreating them. Dates are relative to the day it runs.
 - Fonts come from the `@fontsource` packages, so the build makes no external requests.
@@ -376,5 +383,5 @@ Start both servers first (see [Quick start](#quick-start)). Use the demo buttons
 
 ## Known gaps
 
-- The accessibility audit (`scripts/audit.mjs`) found four problems on its first run (no way to sort on phones, small touch targets in rows, tab panels that did not exist, a login page without a heading). They are fixed, and the audit now reports no horizontal scroll, no small touch targets and no axe violations across 12 screens and 3 widths, including axe's own colour contrast check.
+- The accessibility audit (`scripts/audit.mjs`) found four problems on its first run (no way to sort on phones, small touch targets in rows, tab panels that did not exist, a login page without a heading). They are fixed, and the audit now reports no horizontal scroll, no small touch targets and no axe violations across 12 screens, 3 widths and both themes, including axe's own colour contrast check.
 - Events have no price, image or recurrence, and there is no email sending. The brief did not ask for them.

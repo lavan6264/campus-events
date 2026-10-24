@@ -70,7 +70,7 @@
   font-size: var(--fs-32);
   line-height: 1.2;
   font-weight: 500;
-  color: var(--gold);
+  color: var(--highlight);
 }
 
 /* Asymmetric two column layout, about 2:1 */

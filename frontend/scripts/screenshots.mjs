@@ -38,7 +38,7 @@ const shots = [
   { name: "login", path: "/login", auth: false },
   { name: "dashboard", path: "/", auth: "student" },
   { name: "dashboard-faculty", path: "/", auth: "faculty" },
-  { name: "event-detail", path: "/events/1", auth: "student" },
+  { name: "event-detail", path: "/events/8", auth: "student" },
   { name: "reports", path: "/reports", auth: "admin" },
   { name: "explore", path: "/events", auth: "student" },
   { name: "explore-mobile", path: "/events", auth: "student", viewport: { width: 390, height: 900 } },
@@ -53,12 +53,18 @@ const accounts = {
 const sessions = {};
 for (const key of new Set(shots.map((s) => s.auth).filter(Boolean))) sessions[key] = await login(...accounts[key]);
 
-for (const shot of shots) {
+const themes = [
+  { name: "dark", suffix: "" },
+  { name: "light", suffix: "-light" },
+];
+
+for (const shot of shots.flatMap((s) => themes.filter((t) => t.name === "dark" || !s.viewport).map((t) => ({ ...s, theme: t })))) {
   const context = await browser.newContext({
     viewport: shot.viewport || { width: 1360, height: 860 },
     deviceScaleFactor: 1,
     reducedMotion: "reduce",
   });
+  await context.addInitScript((theme) => localStorage.setItem("ce.theme", theme), shot.theme.name);
   if (shot.auth) {
     const s = sessions[shot.auth];
     await context.addInitScript(([token, user]) => {
@@ -70,8 +76,8 @@ for (const shot of shots) {
   await page.goto(APP + shot.path, { waitUntil: "networkidle" });
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(250);
-  await page.screenshot({ path: resolve(out, `${shot.name}.png`), fullPage: false });
-  console.log("saved", `${shot.name}.png`);
+  await page.screenshot({ path: resolve(out, `${shot.name}${shot.theme.suffix}.png`), fullPage: false });
+  console.log("saved", `${shot.name}${shot.theme.suffix}.png`);
   await context.close();
 }
 await browser.close();

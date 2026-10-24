@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--sp-16);
-  background: rgba(6, 12, 11, 0.6);
+  background: var(--overlay);
   animation: fade var(--shift) ease-out;
 }
 
