@@ -24,7 +24,7 @@ def _upcoming(value: str):
     return Event.start_time >= func.now() if lowered == "true" else Event.start_time < func.now()
 
 
-router = crud_router(CRUDConfig(
+config = CRUDConfig(
     prefix="/events",
     tags=["Events"],
     model=Event,
@@ -48,4 +48,5 @@ router = crud_router(CRUDConfig(
     search_fields=["title", "description", "venue"],
     sortable_fields=["start_time", "end_time", "title", "category", "capacity", "created_at"],
     default_sort="start_time",
-))
+)
+router = crud_router(config)
