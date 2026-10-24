@@ -3,9 +3,10 @@ from typing import Any
 
 from sqlalchemy import func, select
 
-from app.core.crud import CRUDService, Unprocessable, register_constraint_message
+from app.core.crud import CRUDService, Conflict, Forbidden, Unprocessable, register_constraint_message
 from app.resources.events.models import Event
 from app.resources.events.schemas import EventCreate, EventUpdate
+from app.resources.events.venues import find_venue_clash
 from app.resources.registrations.logic import confirmed_count, lock_event, promote_waitlisted
 from app.resources.registrations.models import Registration
 from app.resources.users.models import User
@@ -24,8 +25,22 @@ class EventService(CRUDService[Event, EventCreate, EventUpdate]):
 
     # domain rules
 
+    def _check_venue(self, user, override, venue, start, end, exclude_id=None):
+        """A venue holds one published event at a time. An admin may knowingly double book."""
+        if override and user.role != "admin":
+            raise Forbidden("Only an admin can book a venue that is already taken")
+        clash = find_venue_clash(self.db, venue, start, end, exclude_id)
+        if clash is None or override:
+            return
+        raise Conflict(
+            f'{venue.strip()} is already booked at that time by "{clash.title}"',
+            {"venue": f'Already booked at that time by "{clash.title}"'},
+        )
+
     def before_create(self, data, user):
+        override = bool(data.pop("allow_venue_clash", False))
         data["organizer_id"] = user.id
+        self._check_venue(user, override, data["venue"], data["start_time"], data["end_time"])
         return data
 
     def before_update(self, obj, data, user):
@@ -40,6 +55,12 @@ class EventService(CRUDService[Event, EventCreate, EventUpdate]):
                 del data[key]
         if "description" in data and data["description"] is None:
             data["description"] = ""
+        override = bool(data.pop("allow_venue_clash", False))
+        status = data.get("status") or locked.status
+        touched = any(k in data for k in ("venue", "start_time", "end_time", "status"))
+        if status == "published" and (touched or override):
+            # Only when the booking itself changes, so an unrelated edit never trips over an old double booking.
+            self._check_venue(user, override, data.get("venue", locked.venue), start, end, exclude_id=obj.id)
         capacity = data.get("capacity")
         if capacity is not None:
             confirmed = confirmed_count(self.db, obj.id)

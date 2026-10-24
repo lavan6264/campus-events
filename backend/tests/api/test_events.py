@@ -239,12 +239,12 @@ def test_event_routes_documented_with_filters(client):
 
 def test_event_cover_image_link(client, people, auth_headers):
     headers = auth_headers(people["faculty"])
-    created = client.post("/api/events/", json={**NEW_EVENT, "image_url": "  https://example.test/cover.jpg "}, headers=headers)
+    created = client.post("/api/events/", json={**NEW_EVENT, "venue": "Room A", "image_url": "  https://example.test/cover.jpg "}, headers=headers)
     assert created.status_code == 201 and created.json()["image_url"] == "https://example.test/cover.jpg"
 
-    without = client.post("/api/events/", json=NEW_EVENT, headers=headers)
+    without = client.post("/api/events/", json={**NEW_EVENT, "venue": "Room B"}, headers=headers)
     assert without.json()["image_url"] is None
-    assert client.post("/api/events/", json={**NEW_EVENT, "image_url": ""}, headers=headers).json()["image_url"] is None
+    assert client.post("/api/events/", json={**NEW_EVENT, "venue": "Room C", "image_url": ""}, headers=headers).json()["image_url"] is None
 
     event_id = created.json()["id"]
     assert client.patch(f"/api/events/{event_id}", json={"image_url": "/covers/lab.png"}, headers=headers).json()["image_url"] == "/covers/lab.png"

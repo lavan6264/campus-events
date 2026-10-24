@@ -76,6 +76,7 @@ class EventCreate(BaseModel):
     end_time: AwareDatetime
     capacity: int = Field(gt=0, le=100000)
     image_url: str | None = Field(default=None, max_length=500)
+    allow_venue_clash: bool = Field(default=False, description="Admins only: book a venue that is already taken")
 
     _category = field_validator("category")(_check_category)
     _end = field_validator("end_time")(_check_end)
@@ -92,6 +93,7 @@ class EventUpdate(BaseModel):
     capacity: int | None = Field(default=None, gt=0, le=100000)
     image_url: str | None = Field(default=None, max_length=500)
     status: Literal["published", "cancelled"] | None = None
+    allow_venue_clash: bool | None = Field(default=None, description="Admins only: book a venue that is already taken")
 
     _category = field_validator("category")(_check_category)
     _end = field_validator("end_time")(_check_end)

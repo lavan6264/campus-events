@@ -2,7 +2,7 @@
 participants and CSV export."""
 import csv
 import io
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Literal
 
 from fastapi import APIRouter, Depends, Request, Response
@@ -12,8 +12,9 @@ from sqlalchemy.orm import Session
 
 from app.core.crud import BadRequest, ErrorResponse, Forbidden, NotFound, Page
 from app.db import get_db
-from app.deps import get_current_user
+from app.deps import get_current_user, require_roles
 from app.resources.events.models import CATEGORIES, Event
+from app.resources.events.venues import find_venue_clash
 from app.resources.registrations.logic import (
     cancel_user_registration, register_user, remove_registration, waitlist_position,
 )
@@ -200,3 +201,34 @@ def remove_participant(id: int, registration_id: int, user: User = Depends(get_c
     _, removed = remove_registration(db, id, registration_id)
     db.commit()
     return RegistrationResult(status="cancelled", message=f"{removed.name} was removed")
+
+
+class VenueClash(BaseModel):
+    id: int
+    title: str
+    start_time: datetime
+    end_time: datetime
+    organizer_name: str | None
+
+
+class VenueCheck(BaseModel):
+    clash: VenueClash | None
+
+
+@router.get("/venue-check", response_model=VenueCheck, summary="Is this venue free at that time? (organiser or admin)",
+            responses=ERRORS)
+def venue_check(venue: str, start_time: datetime, end_time: datetime, exclude_id: int | None = None,
+                user: User = Depends(require_roles("faculty", "admin")), db: Session = Depends(get_db)):
+    """Lets the event form warn before saving. The save itself checks again, so this is advice, not the rule."""
+    if not venue.strip() or end_time <= start_time:
+        return VenueCheck(clash=None)
+    aware = lambda d: d if d.tzinfo else d.replace(tzinfo=timezone.utc)  # noqa: E731
+    found = find_venue_clash(db, venue, aware(start_time), aware(end_time), exclude_id)
+    db.rollback()  # release the venue lock taken by the check
+    if found is None:
+        return VenueCheck(clash=None)
+    organiser = db.get(User, found.organizer_id)
+    return VenueCheck(clash=VenueClash(
+        id=found.id, title=found.title, start_time=found.start_time, end_time=found.end_time,
+        organizer_name=organiser.name if organiser else None,
+    ))

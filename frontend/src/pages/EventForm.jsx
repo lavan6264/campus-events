@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { usePageTitle } from "../app/Shell.jsx";
 import Button from "../components/Button.jsx";
@@ -6,7 +7,9 @@ import { Textarea } from "../components/Input.jsx";
 import ImagePicker from "../components/ImagePicker.jsx";
 import Skeleton from "../components/Skeleton.jsx";
 import { useAuth } from "../lib/auth.jsx";
-import ResourceForm from "../lib/crud/ResourceForm.jsx";
+import { api } from "../lib/crud/api.js";
+import { formatDateTime, formatTime } from "../lib/format.js";
+import ResourceForm, { localInputToIso } from "../lib/crud/ResourceForm.jsx";
 import { events } from "../resources/index.js";
 import { aiDraft, useCategories } from "../resources/actions.js";
 import ErrorPage from "./ErrorPage.jsx";
@@ -50,6 +53,60 @@ function buildFields(categories, isEdit) {
   });
   fields.push({ name: "description", label: "Description", type: "textarea", maxLength: 5000, rows: 6, span: 2, emptyAs: "" });
   return fields;
+}
+
+function useDebounced(value, ms) {
+  const [settled, setSettled] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setSettled(value), ms);
+    return () => clearTimeout(timer);
+  }, [value, ms]);
+  return settled;
+}
+
+/**
+ * Warns before saving when the venue is already taken at that time. The server checks again when the event
+ * is saved, so this is advice. An admin can tick a box to book the room anyway.
+ */
+function VenueCheck({ values, setValues, excludeId, isAdmin }) {
+  const venue = (values.venue || "").trim();
+  const ready = venue && values.start_time && values.end_time && new Date(values.end_time) > new Date(values.start_time);
+  const request = ready
+    ? JSON.stringify({ venue, start_time: localInputToIso(values.start_time), end_time: localInputToIso(values.end_time) })
+    : null;
+  const settled = useDebounced(request, 500);
+
+  const check = useQuery({
+    queryKey: ["venue-check", settled, excludeId ?? null],
+    queryFn: () => api("/events/venue-check", { params: { ...JSON.parse(settled), exclude_id: excludeId } }),
+    enabled: Boolean(settled) && settled === request,
+    staleTime: 0,
+    gcTime: 0,
+  });
+
+  const clash = settled === request ? check.data?.clash : null;
+  if (!clash) return null;
+  return (
+    <div className={styles.venueWarning} role="status">
+      <p>
+        {venue} is already booked by "{clash.title}"
+        {clash.organizer_name ? ` (${clash.organizer_name})` : ""} on {formatDateTime(clash.start_time)} to{" "}
+        {formatTime(clash.end_time)}.
+      </p>
+      {isAdmin ? (
+        <label className={styles.override}>
+          <input
+            type="checkbox"
+            checked={Boolean(values.allow_venue_clash)}
+            onChange={(e) => setValues({ allow_venue_clash: e.target.checked })}
+          />
+          Book it anyway (admin only)
+        </label>
+      ) : (
+        <p className="muted">Choose another time or another venue.</p>
+      )}
+    </div>
+  );
 }
 
 /** Turns rough notes into a draft. The organizer edits it, and nothing is saved until they press the save button. */
@@ -183,7 +240,9 @@ export default function EventForm({ mode }) {
             />
           </>
         )}
-        onSubmit={async (payload) => {
+        after={(props) => <VenueCheck {...props} excludeId={isEdit ? Number(id) : undefined} isAdmin={user.role === "admin"} />}
+        onSubmit={async (payload, values) => {
+          if (user.role === "admin" && values.allow_venue_clash) payload.allow_venue_clash = true;
           if (isEdit) {
             const saved = await update.mutateAsync({ id, ...payload });
             navigate(`/events/${saved.id}`);

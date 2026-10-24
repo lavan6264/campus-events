@@ -69,6 +69,7 @@ function toPayload(fields, values) {
  * onSubmit(payload, values) should return a promise. If it rejects with an error that has `fields`
  * (the server's field messages), those appear under the matching inputs.
  * `before({ values, setValues })` renders extra content above the fields, for example an assistant box.
+ * `after({ values, setValues })` renders extra content below the fields, for example a booking warning.
  */
 export default function ResourceForm({
   fields,
@@ -78,6 +79,7 @@ export default function ResourceForm({
   savingLabel = "Saving",
   onCancel,
   before,
+  after,
   extraActions,
 }) {
   const formId = useId();
@@ -191,6 +193,7 @@ export default function ResourceForm({
           );
         })}
       </div>
+      {after ? after({ values, setValues: setAll }) : null}
       <div className={styles.formActions}>
         {extraActions}
         {onCancel ? (

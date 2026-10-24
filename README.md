@@ -170,6 +170,7 @@ erDiagram
 - When an event is full, new registrations are **waitlisted**. When someone cancels, the oldest waitlisted person is promoted. When an organizer raises capacity, waitlisted people move into the new seats.
 - Capacity cannot be lowered below the number of confirmed registrations.
 - Nobody can register for an event that has ended or been cancelled.
+- **A venue holds one published event at a time.** If an organiser creates or edits an event so it overlaps another published event in the same venue, the save is refused with `409` and the message names the other event. The venue name is compared ignoring capital letters and extra spaces, so "innovation  lab" is the same room as "Innovation Lab". An event that starts the moment another ends is fine, cancelled events do not hold a room, and editing something unrelated (the title, capacity) is never blocked by an older double booking. Only an admin can book a taken room on purpose, by ticking **Book it anyway** (the API field `allow_venue_clash`). Two organisers saving the same room at the same instant are handled one after the other with a database lock on the venue, so exactly one booking wins.
 - A person cannot hold two **confirmed** registrations whose times overlap, and the message names the clashing event. Waitlisted registrations are ignored by that check. If a waitlisted person is promoted into an overlap, the promotion stays and both events show a notice.
 
 ## API summary
@@ -181,6 +182,7 @@ Everything is under `/api` and returns JSON. The full, always current list is at
 | Generated | `/users`, `/events`, `/registrations`: list, read, create, update (`PUT` and `PATCH`), delete |
 | Auth | `POST /auth/register`, `POST /auth/login` (limited to 10 failed attempts a minute), `GET /auth/me` |
 | Events | `GET /events/categories`, `POST` and `DELETE /events/{id}/register`, `GET /events/{id}/participants` and `/participants.csv`, `DELETE /events/{id}/participants/{registration_id}` (organiser removes someone) |
+| Venues | `GET /events/venue-check?venue=&start_time=&end_time=&exclude_id=` (organisers and admins): who holds that room at that time. The event form calls it to warn before saving. |
 | Uploads | `POST /uploads/event-image` (organisers and admins), files served from `/api/uploads/...` |
 | Me | `GET /me/registrations`, `GET /me/events` |
 | Admin | `GET /admin/stats`, `PATCH /admin/users/{id}/role` |
