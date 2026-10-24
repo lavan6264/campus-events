@@ -6,6 +6,8 @@ The idea at the centre: a small, reusable **CRUD framework** for REST (backend a
 
 ![Dashboard](docs/screenshots/dashboard.png)
 
+**Presenting this?** See [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md) for a one-page summary and [docs/PRESENTATION.md](docs/PRESENTATION.md) for a slide-by-slide outline with speaker notes.
+
 ## Contents
 
 1. [Quick start](#quick-start)
