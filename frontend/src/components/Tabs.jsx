@@ -3,7 +3,7 @@ import styles from "./Tabs.module.css";
 
 /** Accessible tab list: arrow keys move between tabs, Home and End jump to the ends.
  *  `tabs` is [{ id, label }]. Render the matching panel yourself with `panelProps(id)`. */
-export default function Tabs({ tabs, value, onChange, label, idPrefix }) {
+export default function Tabs({ tabs, value, onChange, label, idPrefix, withPanels = false }) {
   const generated = useId();
   const base = idPrefix || generated;
   const refs = useRef({});
@@ -33,7 +33,7 @@ export default function Tabs({ tabs, value, onChange, label, idPrefix }) {
             role="tab"
             id={`${base}-tab-${tab.id}`}
             aria-selected={selected}
-            aria-controls={`${base}-panel-${tab.id}`}
+            aria-controls={withPanels ? `${base}-panel-${tab.id}` : undefined}
             tabIndex={selected ? 0 : -1}
             className={`${styles.tab} ${selected ? styles.selected : ""}`}
             onClick={() => onChange(tab.id)}

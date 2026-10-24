@@ -24,7 +24,7 @@ def engine():
 @pytest.fixture()
 def session_factory(engine):
     with engine.begin() as conn:
-        conn.execute(text("TRUNCATE dummy_widgets, registrations, events, users RESTART IDENTITY CASCADE"))
+        conn.execute(text("TRUNCATE dummy_widgets, dummy_venues, registrations, events, users RESTART IDENTITY CASCADE"))
     return sessionmaker(bind=engine, expire_on_commit=False)
 
 

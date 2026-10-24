@@ -26,11 +26,12 @@ const NAV = [
   { to: "/reports", label: "Reports", roles: ["admin"] },
 ];
 
-export function Brand() {
+export function Brand({ heading = false }) {
+  const Name = heading ? "h1" : "span";
   return (
     <div className={styles.brand}>
       {INSTITUTION_LOGO ? <img src={INSTITUTION_LOGO} alt="" className={styles.logo} /> : null}
-      <span className={styles.brandName}>{INSTITUTION_NAME}</span>
+      <Name className={styles.brandName}>{INSTITUTION_NAME}</Name>
     </div>
   );
 }

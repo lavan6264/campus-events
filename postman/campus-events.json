@@ -1,0 +1,1256 @@
+{
+  "info": {
+    "name": "Campus Events API",
+    "description": "Run Auth > POST /auth/login first. It stores the token, and every other request uses it.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /auth/register  Create an account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ],
+              "query": []
+            },
+            "description": "Public signup creates only student or faculty accounts. An admin promotes others.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Asha Rao\",\n  \"email\": \"admin@campus-demo.test\",\n  \"password\": \"admin123\",\n  \"role\": \"student\",\n  \"department\": \"text\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.access_token) { pm.collectionVariables.set('token', body.access_token); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /auth/login  Sign in",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ],
+              "query": []
+            },
+            "description": "Sign in",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@campus-demo.test\",\n  \"password\": \"admin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.access_token) { pm.collectionVariables.set('token', body.access_token); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /auth/me  Current user",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ],
+              "query": []
+            },
+            "description": "Current user"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "GET /events/categories  List event categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/events/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "events",
+                "categories"
+              ],
+              "query": []
+            },
+            "description": "List event categories"
+          }
+        },
+        {
+          "name": "POST /events/{id}/register  Register for an event or join its waitlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/events/1/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "events",
+                "1",
+                "register"
+              ],
+              "query": []
+            },
+            "description": "Register for an event or join its waitlist"
+          }
+        },
+        {
+          "name": "DELETE /events/{id}/register  Cancel your registration or leave the waitlist",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/events/1/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "events",
+                "1",
+                "register"
+              ],
+              "query": []
+            },
+            "description": "Cancel your registration or leave the waitlist"
+          }
+        },
+        {
+          "name": "GET /events/{id}/participants  List participants of an event (organizer or admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/events/1/participants",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "events",
+                "1",
+                "participants"
+              ],
+              "query": []
+            },
+            "description": "List participants of an event (organizer or admin)"
+          }
+        },
+        {
+          "name": "GET /events/{id}/participants.csv  Download participants as CSV (organizer or admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/events/1/participants.csv",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "events",
+                "1",
+                "participants.csv"
+              ],
+              "query": []
+            },
+            "description": "Download participants as CSV (organizer or admin)"
+          }
+        },
+        {
+          "name": "GET /events/  List events",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/events/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Page number, starting at 1"
+                },
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Items per page, at most 100"
+                },
+                {
+                  "key": "sort",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Sort field, prefix with - for descending. Allowed: start_time, end_time, title, category, capacity, created_at"
+                },
+                {
+                  "key": "q",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Case insensitive search in: title, description, venue"
+                },
+                {
+                  "key": "category",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (exact)"
+                },
+                {
+                  "key": "category__in",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (inset)"
+                },
+                {
+                  "key": "venue",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (exact)"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (exact)"
+                },
+                {
+                  "key": "status__in",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (inset)"
+                },
+                {
+                  "key": "start_time__gte",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (range)"
+                },
+                {
+                  "key": "start_time__lte",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (range)"
+                },
+                {
+                  "key": "end_time__gte",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (range)"
+                },
+                {
+                  "key": "end_time__lte",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (range)"
+                },
+                {
+                  "key": "organizer",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (custom)"
+                },
+                {
+                  "key": "upcoming",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (custom)"
+                }
+              ]
+            },
+            "description": "List events"
+          }
+        },
+        {
+          "name": "POST /events/  Create events",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/events/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "events"
+              ],
+              "query": []
+            },
+            "description": "Create events",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Intro to robotics\",\n  \"description\": \"A hands on session. Bring a laptop.\",\n  \"category\": \"Workshop\",\n  \"venue\": \"Innovation Lab\",\n  \"start_time\": \"2030-05-01T10:00:00Z\",\n  \"end_time\": \"2030-05-01T13:00:00Z\",\n  \"capacity\": 30\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /events/{id}  Get events by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/events/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "events",
+                "1"
+              ],
+              "query": []
+            },
+            "description": "Get events by id"
+          }
+        },
+        {
+          "name": "PUT /events/{id}  Update events",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/events/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "events",
+                "1"
+              ],
+              "query": []
+            },
+            "description": "Update events",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Intro to robotics\",\n  \"description\": \"A hands on session. Bring a laptop.\",\n  \"category\": \"Workshop\",\n  \"venue\": \"Innovation Lab\",\n  \"start_time\": \"2030-05-01T10:00:00Z\",\n  \"end_time\": \"2030-05-01T13:00:00Z\",\n  \"capacity\": 30,\n  \"status\": \"published\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /events/{id}  Partially update events",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/events/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "events",
+                "1"
+              ],
+              "query": []
+            },
+            "description": "Partially update events",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Intro to robotics\",\n  \"description\": \"A hands on session. Bring a laptop.\",\n  \"category\": \"Workshop\",\n  \"venue\": \"Innovation Lab\",\n  \"start_time\": \"2030-05-01T10:00:00Z\",\n  \"end_time\": \"2030-05-01T13:00:00Z\",\n  \"capacity\": 30,\n  \"status\": \"published\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /events/{id}  Delete events",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/events/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "events",
+                "1"
+              ],
+              "query": []
+            },
+            "description": "Delete events"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Registrations",
+      "item": [
+        {
+          "name": "GET /registrations/  List registrations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/registrations/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "registrations"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Page number, starting at 1"
+                },
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Items per page, at most 100"
+                },
+                {
+                  "key": "sort",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Sort field, prefix with - for descending. Allowed: created_at, updated_at, status, event_id, user_id"
+                },
+                {
+                  "key": "event_id",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (exact)"
+                },
+                {
+                  "key": "user_id",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (exact)"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (exact)"
+                },
+                {
+                  "key": "status__in",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (inset)"
+                },
+                {
+                  "key": "created_at__gte",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (range)"
+                },
+                {
+                  "key": "created_at__lte",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (range)"
+                }
+              ]
+            },
+            "description": "List registrations"
+          }
+        },
+        {
+          "name": "GET /registrations/{id}  Get registrations by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/registrations/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "registrations",
+                "1"
+              ],
+              "query": []
+            },
+            "description": "Get registrations by id"
+          }
+        },
+        {
+          "name": "DELETE /registrations/{id}  Delete registrations",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/registrations/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "registrations",
+                "1"
+              ],
+              "query": []
+            },
+            "description": "Delete registrations"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Me",
+      "item": [
+        {
+          "name": "GET /me/registrations  My registrations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/me/registrations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "me",
+                "registrations"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true,
+                  "description": "registered, waitlisted or cancelled. Comma separate several. Default: registered,waitlisted"
+                },
+                {
+                  "key": "upcoming",
+                  "value": "",
+                  "disabled": true,
+                  "description": "true for events that have not ended, false for past ones"
+                },
+                {
+                  "key": "page",
+                  "value": "",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true,
+                  "description": ""
+                }
+              ]
+            },
+            "description": "My registrations"
+          }
+        },
+        {
+          "name": "GET /me/events  Events I organise",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/me/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "me",
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "sort",
+                  "value": "",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "q",
+                  "value": "",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "upcoming",
+                  "value": "",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "category",
+                  "value": "",
+                  "disabled": true,
+                  "description": ""
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true,
+                  "description": ""
+                }
+              ]
+            },
+            "description": "Events I organise"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "GET /users/  List users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Page number, starting at 1"
+                },
+                {
+                  "key": "limit",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Items per page, at most 100"
+                },
+                {
+                  "key": "sort",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Sort field, prefix with - for descending. Allowed: name, email, role, department, created_at"
+                },
+                {
+                  "key": "q",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Case insensitive search in: name, email, department"
+                },
+                {
+                  "key": "role",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (exact)"
+                },
+                {
+                  "key": "role__in",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (inset)"
+                },
+                {
+                  "key": "department",
+                  "value": "",
+                  "disabled": true,
+                  "description": "Filter (exact)"
+                }
+              ]
+            },
+            "description": "List users"
+          }
+        },
+        {
+          "name": "POST /users/  Create users",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ],
+              "query": []
+            },
+            "description": "Create users",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Asha Rao\",\n  \"email\": \"admin@campus-demo.test\",\n  \"password\": \"admin123\",\n  \"role\": \"student\",\n  \"department\": \"text\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /users/{id}  Get users by id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "1"
+              ],
+              "query": []
+            },
+            "description": "Get users by id"
+          }
+        },
+        {
+          "name": "PUT /users/{id}  Update users",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "1"
+              ],
+              "query": []
+            },
+            "description": "Update users",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Asha Rao\",\n  \"email\": \"admin@campus-demo.test\",\n  \"password\": \"admin123\",\n  \"department\": \"text\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /users/{id}  Partially update users",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "1"
+              ],
+              "query": []
+            },
+            "description": "Partially update users",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Asha Rao\",\n  \"email\": \"admin@campus-demo.test\",\n  \"password\": \"admin123\",\n  \"department\": \"text\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /users/{id}  Delete users",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "1"
+              ],
+              "query": []
+            },
+            "description": "Delete users"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "GET /admin/stats  Analytics for the reports screen",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "stats"
+              ],
+              "query": []
+            },
+            "description": "Analytics for the reports screen"
+          }
+        },
+        {
+          "name": "PATCH /admin/users/{id}/role  Change a user's role",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/1/role",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "1",
+                "role"
+              ],
+              "query": []
+            },
+            "description": "Change a user's role",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"student\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI",
+      "item": [
+        {
+          "name": "POST /ai/search  Turn a sentence into event filters",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ai",
+                "search"
+              ],
+              "query": []
+            },
+            "description": "Turn a sentence into event filters",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"robotics workshops next week\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /ai/draft-event  Draft an event from rough notes",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/draft-event",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ai",
+                "draft-event"
+              ],
+              "query": []
+            },
+            "description": "Nothing is saved. The organizer edits the draft and saves it through POST /api/events.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"robotics intro session, friday afternoon, innovation lab, bring laptop\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /ai/recommendations  Upcoming events picked for me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/recommendations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ai",
+                "recommendations"
+              ],
+              "query": []
+            },
+            "description": "Upcoming events picked for me"
+          }
+        },
+        {
+          "name": "GET /admin/ai/summary  Plain language analytics summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/ai/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "ai",
+                "summary"
+              ],
+              "query": []
+            },
+            "description": "Plain language analytics summary"
+          }
+        }
+      ]
+    },
+    {
+      "name": "health",
+      "item": [
+        {
+          "name": "GET /health  Health check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ],
+              "query": []
+            },
+            "description": "Health check"
+          }
+        }
+      ]
+    }
+  ]
+}

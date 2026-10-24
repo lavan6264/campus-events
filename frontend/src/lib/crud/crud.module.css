@@ -96,8 +96,19 @@
   padding: var(--sp-32);
 }
 
+/* The header row is hidden on phones, so sorting moves into this control */
+.mobileSort {
+  display: none;
+  padding: var(--sp-12) var(--sp-16);
+  border-bottom: 1px solid var(--hairline);
+}
+
 /* Stacked rows on small screens */
 @media (max-width: 720px) {
+  .mobileSort {
+    display: block;
+  }
+
   .table,
   .table tbody,
   .table tr,

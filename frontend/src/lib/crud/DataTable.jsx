@@ -1,4 +1,5 @@
 import Button from "../../components/Button.jsx";
+import { Select } from "../../components/Input.jsx";
 import Skeleton from "../../components/Skeleton.jsx";
 import { ArrowDownIcon, ArrowUpIcon } from "../../components/icons.jsx";
 import Pagination from "./Pagination.jsx";
@@ -66,8 +67,22 @@ export default function DataTable({
     );
   }
 
+  const sortable = columns.filter((c) => c.sortable);
+  const sortOptions = sortable.flatMap((c) => {
+    const field = c.sortKey || c.key;
+    return [
+      { value: field, label: `${c.header}, ascending` },
+      { value: `-${field}`, label: `${c.header}, descending` },
+    ];
+  });
+
   return (
     <div className={`${styles.tableWrap} glass-2`} aria-busy={isLoading || isFetching}>
+      {sortable.length && onSort ? (
+        <div className={styles.mobileSort}>
+          <Select label="Sort by" value={sort || ""} options={sortOptions} onChange={(e) => onSort(e.target.value)} />
+        </div>
+      ) : null}
       <table className={`${styles.table} ${isFetching && !isLoading ? styles.stale : ""}`}>
         {caption ? <caption className="visually-hidden">{caption}</caption> : null}
         <thead>

@@ -201,6 +201,12 @@
   font-weight: 600;
 }
 
+@media (max-width: 720px) {
+  .toggle {
+    min-height: var(--touch-h);
+  }
+}
+
 @media (max-width: 520px) {
   .frame {
     padding: var(--sp-16);

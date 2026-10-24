@@ -30,6 +30,16 @@ class Widget(DummyBase):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
+class Venue(DummyBase):
+    """The model from the README example 'Add a new resource in 20 lines'."""
+
+    __tablename__ = "dummy_venues"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(80), unique=True)
+    capacity: Mapped[int]
+
+
 class WidgetRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int

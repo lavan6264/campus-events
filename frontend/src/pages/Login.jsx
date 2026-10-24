@@ -57,11 +57,11 @@ export default function Login() {
   return (
     <main className={styles.loginPage}>
       <div className={styles.loginBrand}>
-        <Brand />
+        <Brand heading />
         <p className="muted">Find, join and run events on campus.</p>
       </div>
       <section className={`${styles.loginPanel} glass-2`} aria-label={`${INSTITUTION_NAME} account`}>
-        <Tabs tabs={TABS} value={mode} onChange={setMode} label="Account" idPrefix="auth" />
+        <Tabs tabs={TABS} value={mode} onChange={setMode} label="Account" idPrefix="auth" withPanels />
         <div role="tabpanel" id={`auth-panel-${mode}`} aria-labelledby={`auth-tab-${mode}`} className={styles.loginForm}>
           {location.state?.from ? <p className="small muted">Sign in to open that page.</p> : null}
           {mode === "login" ? (
